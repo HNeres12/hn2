@@ -186,51 +186,68 @@ async function getDollarQuote(): Promise<QuoteResponse> {
 async function getUSStockQuote(ticker: string): Promise<QuoteResponse> {
   const alphaVantageKey = Deno.env.get('ALPHA_VANTAGE_API_KEY');
   
-  if (alphaVantageKey) {
+  if (!alphaVantageKey) {
+    console.warn('ALPHA_VANTAGE_API_KEY not configured');
+  } else {
     try {
-      const response = await fetch(
-        `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${alphaVantageKey}`
-      );
+      const url = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${ticker}&apikey=${alphaVantageKey}`;
+      console.log(`Fetching Alpha Vantage for ${ticker}`);
+      
+      const response = await fetch(url);
       
       if (response.ok) {
         const data = await response.json();
-        const quote = data['Global Quote'];
+        console.log(`Alpha Vantage response for ${ticker}:`, JSON.stringify(data));
         
-        if (quote && quote['05. price']) {
+        // Check for rate limit message
+        if (data.Note || data.Information) {
+          console.warn('Alpha Vantage rate limited:', data.Note || data.Information);
+        } else if (data['Global Quote'] && data['Global Quote']['05. price']) {
+          const quote = data['Global Quote'];
+          const price = parseFloat(quote['05. price']);
+          console.log(`Alpha Vantage price for ${ticker}: $${price}`);
+          
           return {
             ticker: ticker.toUpperCase(),
-            price: parseFloat(quote['05. price']),
+            price: price,
             currency: 'USD',
             source: 'Alpha Vantage',
             updatedAt: new Date().toISOString(),
           };
+        } else {
+          console.warn('Alpha Vantage returned empty quote for', ticker);
         }
+      } else {
+        console.error('Alpha Vantage HTTP error:', response.status);
       }
     } catch (error) {
       console.error('Alpha Vantage error:', error);
     }
   }
 
-  // Return a placeholder with warning - don't throw error
-  // Use approximate values for common stocks
+  // Fallback with approximate values for common stocks
   const stockEstimates: Record<string, number> = {
-    'AAPL': 250,
-    'GOOGL': 175,
-    'MSFT': 430,
-    'AMZN': 225,
-    'TSLA': 450,
-    'NVDA': 140,
+    'AAPL': 248,
+    'GOOGL': 192,
+    'MSFT': 438,
+    'AMZN': 224,
+    'TSLA': 421,
+    'NVDA': 134,
+    'META': 585,
   };
 
   const estimatedPrice = stockEstimates[ticker.toUpperCase()] || 100;
+  const source = alphaVantageKey 
+    ? 'Fallback (Alpha Vantage rate limited)' 
+    : 'Estimate (configure ALPHA_VANTAGE_API_KEY)';
 
-  console.log(`Using estimated price for ${ticker}: $${estimatedPrice}`);
+  console.log(`Using fallback price for ${ticker}: $${estimatedPrice}`);
 
   return {
     ticker: ticker.toUpperCase(),
     price: estimatedPrice,
     currency: 'USD',
-    source: 'Estimate (configure ALPHA_VANTAGE_API_KEY for real quotes)',
+    source: source,
     updatedAt: new Date().toISOString(),
     isEstimate: true,
   };
