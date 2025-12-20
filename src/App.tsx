@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { InvestmentProvider } from "./contexts/InvestmentContext";
 import { ExpenseProvider } from "./contexts/ExpenseContext";
+import { InstallPrompt } from "./components/pwa/InstallPrompt";
 import InvestmentDashboard from "./pages/InvestmentDashboard";
 import InvestmentManagement from "./pages/InvestmentManagement";
 import FinanceDashboard from "./pages/FinanceDashboard";
@@ -21,6 +22,7 @@ const App = () => (
         <ExpenseProvider>
           <Toaster />
           <Sonner />
+          <InstallPrompt />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<InvestmentDashboard />} />
