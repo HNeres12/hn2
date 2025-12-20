@@ -8,10 +8,19 @@ import { useQuotes } from '@/hooks/useQuotes';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Clock } from 'lucide-react';
+import { investmentEntities, InvestmentEntity } from '@/types/finance';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function InvestmentDashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
+  const [selectedEntity, setSelectedEntity] = useState<InvestmentEntity | 'all'>('all');
   const { investments } = useInvestments();
   const { quotes, isLoading, fetchMultipleQuotes } = useQuotes();
   const { toast } = useToast();
@@ -75,8 +84,23 @@ export default function InvestmentDashboard() {
     });
   }, [investments, quotes]);
 
-  const totalInvested = updatedInvestments.reduce((sum, inv) => sum + inv.investedValue, 0);
-  const totalCurrent = updatedInvestments.reduce((sum, inv) => sum + inv.currentValue, 0);
+  // Filter investments by entity
+  const filteredInvestments = useMemo(() => {
+    if (selectedEntity === 'all') return updatedInvestments;
+    return updatedInvestments.filter((inv) => inv.entity === selectedEntity);
+  }, [updatedInvestments, selectedEntity]);
+
+  // Get unique entities from investments
+  const availableEntities = useMemo(() => {
+    const entities = new Set<InvestmentEntity>();
+    investments.forEach((inv) => {
+      if (inv.entity) entities.add(inv.entity);
+    });
+    return Array.from(entities);
+  }, [investments]);
+
+  const totalInvested = filteredInvestments.reduce((sum, inv) => sum + inv.investedValue, 0);
+  const totalCurrent = filteredInvestments.reduce((sum, inv) => sum + inv.currentValue, 0);
   const variation = totalCurrent - totalInvested;
   const variationPercent = totalInvested > 0 ? (variation / totalInvested) * 100 : 0;
 
@@ -111,7 +135,7 @@ export default function InvestmentDashboard() {
 
   const investmentsByType = assetTypes.map((type) => ({
     ...type,
-    investments: updatedInvestments.filter((inv) => inv.assetTypeId === type.id),
+    investments: filteredInvestments.filter((inv) => inv.assetTypeId === type.id),
   })).filter((type) => type.investments.length > 0);
 
   return (
@@ -124,12 +148,31 @@ export default function InvestmentDashboard() {
               Acompanhe seu patrimônio e a performance dos seus ativos
             </p>
           </div>
-          {lastUpdate && (
-            <Badge variant="outline" className="flex items-center gap-1 text-xs">
-              <Clock className="w-3 h-3" />
-              Atualizado: {lastUpdate.toLocaleTimeString('pt-BR')}
-            </Badge>
-          )}
+          <div className="flex items-center gap-3">
+            {availableEntities.length > 0 && (
+              <Select value={selectedEntity} onValueChange={(value: InvestmentEntity | 'all') => setSelectedEntity(value)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filtrar por entidade" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas as entidades</SelectItem>
+                  {investmentEntities
+                    .filter((ent) => availableEntities.includes(ent.value))
+                    .map((ent) => (
+                      <SelectItem key={ent.value} value={ent.value}>
+                        {ent.label}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            )}
+            {lastUpdate && (
+              <Badge variant="outline" className="flex items-center gap-1 text-xs">
+                <Clock className="w-3 h-3" />
+                Atualizado: {lastUpdate.toLocaleTimeString('pt-BR')}
+              </Badge>
+            )}
+          </div>
         </div>
 
         <PatrimonyCard
