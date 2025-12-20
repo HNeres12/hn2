@@ -96,33 +96,40 @@ export const investments: Investment[] = [
 ];
 
 export const expenseCategories: ExpenseCategory[] = [
-  { id: '1', name: 'Moradia', icon: 'Home', color: 'hsl(262, 83%, 58%)' },
-  { id: '2', name: 'Alimentação', icon: 'UtensilsCrossed', color: 'hsl(38, 92%, 50%)' },
-  { id: '3', name: 'Transporte', icon: 'Car', color: 'hsl(174, 72%, 46%)' },
-  { id: '4', name: 'Assinaturas', icon: 'CreditCard', color: 'hsl(142, 72%, 46%)' },
-  { id: '5', name: 'Lazer', icon: 'Gamepad2', color: 'hsl(0, 72%, 51%)' },
-  { id: '6', name: 'Saúde', icon: 'Heart', color: 'hsl(340, 82%, 52%)' },
-  { id: '7', name: 'Educação', icon: 'GraduationCap', color: 'hsl(200, 72%, 46%)' },
-  { id: '8', name: 'Outros', icon: 'MoreHorizontal', color: 'hsl(220, 14%, 46%)' },
+  { id: '1', name: 'Necessidades Básicas', icon: 'Home', color: 'hsl(262, 83%, 58%)' },
+  { id: '2', name: 'Lazer', icon: 'Gamepad2', color: 'hsl(38, 92%, 50%)' },
+  { id: '3', name: 'Doações', icon: 'Heart', color: 'hsl(340, 82%, 52%)' },
+  { id: '4', name: 'Educação Financeira', icon: 'BookOpen', color: 'hsl(174, 72%, 46%)' },
+  { id: '5', name: 'Investimentos', icon: 'TrendingUp', color: 'hsl(142, 72%, 46%)' },
 ];
 
 export const expenses: Expense[] = [
   { id: '1', categoryId: '1', name: 'Aluguel', value: 2500, paymentMethod: 'debit', date: new Date('2024-12-05') },
   { id: '2', categoryId: '1', name: 'Condomínio', value: 850, paymentMethod: 'debit', date: new Date('2024-12-10') },
-  { id: '3', categoryId: '2', name: 'Supermercado', value: 1200, paymentMethod: 'card', date: new Date('2024-12-08') },
-  { id: '4', categoryId: '2', name: 'iFood', value: 350, paymentMethod: 'card', date: new Date('2024-12-15') },
-  { id: '5', categoryId: '3', name: 'Gasolina', value: 400, paymentMethod: 'card', date: new Date('2024-12-12') },
-  { id: '6', categoryId: '5', name: 'Cinema', value: 120, paymentMethod: 'card', date: new Date('2024-12-14') },
-  { id: '7', categoryId: '6', name: 'Farmácia', value: 180, paymentMethod: 'pix', date: new Date('2024-12-16') },
+  { id: '3', categoryId: '1', name: 'Supermercado', value: 1200, paymentMethod: 'card', date: new Date('2024-12-08') },
+  { id: '4', categoryId: '2', name: 'Cinema', value: 120, paymentMethod: 'card', date: new Date('2024-12-14') },
+  { id: '5', categoryId: '2', name: 'iFood', value: 350, paymentMethod: 'card', date: new Date('2024-12-15') },
+  { id: '6', categoryId: '3', name: 'Doação ONG', value: 200, paymentMethod: 'pix', date: new Date('2024-12-10') },
+  { id: '7', categoryId: '4', name: 'Curso de Investimentos', value: 500, paymentMethod: 'card', date: new Date('2024-12-01') },
+  { id: '8', categoryId: '5', name: 'Aporte Tesouro Selic', value: 1000, paymentMethod: 'debit', date: new Date('2024-12-15') },
+  // Historical data for charts
+  { id: '9', categoryId: '1', name: 'Aluguel', value: 2500, paymentMethod: 'debit', date: new Date('2024-11-05') },
+  { id: '10', categoryId: '1', name: 'Supermercado', value: 1100, paymentMethod: 'card', date: new Date('2024-11-08') },
+  { id: '11', categoryId: '2', name: 'Restaurante', value: 280, paymentMethod: 'card', date: new Date('2024-11-20') },
+  { id: '12', categoryId: '1', name: 'Aluguel', value: 2500, paymentMethod: 'debit', date: new Date('2024-10-05') },
+  { id: '13', categoryId: '1', name: 'Supermercado', value: 950, paymentMethod: 'card', date: new Date('2024-10-10') },
+  { id: '14', categoryId: '5', name: 'Aporte FII', value: 800, paymentMethod: 'debit', date: new Date('2024-10-15') },
+  { id: '15', categoryId: '1', name: 'Aluguel', value: 2500, paymentMethod: 'debit', date: new Date('2024-09-05') },
+  { id: '16', categoryId: '2', name: 'Viagem', value: 1500, paymentMethod: 'card', date: new Date('2024-09-15') },
 ];
 
 export const subscriptions: Subscription[] = [
-  { id: '1', name: 'Netflix', value: 55.90, billingDay: 15, categoryId: '4', active: true },
-  { id: '2', name: 'Spotify', value: 21.90, billingDay: 5, categoryId: '4', active: true },
-  { id: '3', name: 'Amazon Prime', value: 19.90, billingDay: 20, categoryId: '4', active: true },
+  { id: '1', name: 'Netflix', value: 55.90, billingDay: 15, categoryId: '2', active: true },
+  { id: '2', name: 'Spotify', value: 21.90, billingDay: 5, categoryId: '2', active: true },
+  { id: '3', name: 'Amazon Prime', value: 19.90, billingDay: 20, categoryId: '2', active: true },
   { id: '4', name: 'ChatGPT Plus', value: 104.90, billingDay: 10, categoryId: '4', active: true },
-  { id: '5', name: 'iCloud 200GB', value: 14.90, billingDay: 1, categoryId: '4', active: true },
-  { id: '6', name: 'Academia', value: 159.90, billingDay: 5, categoryId: '6', active: true },
+  { id: '5', name: 'iCloud 200GB', value: 14.90, billingDay: 1, categoryId: '1', active: true },
+  { id: '6', name: 'Academia', value: 159.90, billingDay: 5, categoryId: '1', active: true },
 ];
 
 export const installmentPurchases: InstallmentPurchase[] = [
@@ -134,7 +141,7 @@ export const installmentPurchases: InstallmentPurchase[] = [
     totalInstallments: 12,
     paidInstallments: 4,
     startDate: new Date('2024-08-01'),
-    categoryId: '7',
+    categoryId: '4',
   },
   {
     id: '2',
@@ -144,6 +151,6 @@ export const installmentPurchases: InstallmentPurchase[] = [
     totalInstallments: 10,
     paidInstallments: 3,
     startDate: new Date('2024-09-15'),
-    categoryId: '8',
+    categoryId: '1',
   },
 ];
