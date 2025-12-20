@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PatrimonyCard } from '@/components/dashboard/PatrimonyCard';
 import { AssetTypeCard } from '@/components/dashboard/AssetTypeCard';
+import { InvestmentCharts } from '@/components/dashboard/InvestmentCharts';
 import { assetTypes } from '@/data/mockData';
 import { useInvestments } from '@/contexts/InvestmentContext';
 import { useQuotes } from '@/hooks/useQuotes';
@@ -194,6 +195,9 @@ export default function InvestmentDashboard() {
             ))}
           </div>
         )}
+
+        {/* Investment Charts */}
+        <InvestmentCharts investments={filteredInvestments} />
 
         <div>
           <h2 className="text-xl font-semibold mb-4">Ativos por Categoria</h2>

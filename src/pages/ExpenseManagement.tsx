@@ -6,7 +6,7 @@ import { useExpenses } from '@/contexts/ExpenseContext';
 import { expenseCategories } from '@/data/mockData';
 import { Expense, Subscription, InstallmentPurchase, FixedExpense } from '@/types/finance';
 import { getIcon } from '@/lib/iconUtils';
-import { ExpenseCharts } from '@/components/finance/ExpenseCharts';
+
 import {
   Dialog,
   DialogContent,
@@ -220,14 +220,6 @@ export default function ExpenseManagement() {
             Gerencie todas as suas despesas, assinaturas, parcelas e contas fixas
           </p>
         </div>
-
-        {/* Charts Section */}
-        <ExpenseCharts 
-          expenses={expenses}
-          subscriptions={subscriptions}
-          fixedExpenses={fixedExpenses}
-          installments={installments}
-        />
 
         <Tabs defaultValue="expenses" className="space-y-6">
           <TabsList className="grid grid-cols-4 w-full max-w-2xl">
