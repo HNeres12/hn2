@@ -2,28 +2,28 @@ import { useState, useEffect, useMemo } from 'react';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { PatrimonyCard } from '@/components/dashboard/PatrimonyCard';
 import { AssetTypeCard } from '@/components/dashboard/AssetTypeCard';
-import { investments as mockInvestments, assetTypes } from '@/data/mockData';
+import { assetTypes } from '@/data/mockData';
+import { useInvestments } from '@/contexts/InvestmentContext';
 import { useQuotes } from '@/hooks/useQuotes';
 import { useToast } from '@/hooks/use-toast';
-import { Investment } from '@/types/finance';
 import { Badge } from '@/components/ui/badge';
 import { Clock } from 'lucide-react';
 
 export default function InvestmentDashboard() {
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [investments, setInvestments] = useState<Investment[]>(mockInvestments);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  const { quotes, isLoading, fetchMultipleQuotes, fetchDollarQuote } = useQuotes();
+  const { investments } = useInvestments();
+  const { quotes, isLoading, fetchMultipleQuotes } = useQuotes();
   const { toast } = useToast();
 
   // Map asset type IDs to quote types
-  const getQuoteRequestsForInvestments = (invs: Investment[]) => {
+  const getQuoteRequestsForInvestments = () => {
     const requests: Array<{ type: 'crypto' | 'stock_us' | 'treasury' | 'dollar'; ticker?: string }> = [];
     
     // Always fetch dollar for USD conversions
     requests.push({ type: 'dollar' });
 
-    invs.forEach((inv) => {
+    investments.forEach((inv) => {
       const assetType = assetTypes.find((t) => t.id === inv.assetTypeId);
       if (!assetType || !inv.ticker) return;
 
@@ -50,7 +50,7 @@ export default function InvestmentDashboard() {
   const updatedInvestments = useMemo(() => {
     if (Object.keys(quotes).length === 0) return investments;
 
-    const dollarRate = quotes['USD']?.price || 5.5; // Fallback to approximate rate
+    const dollarRate = quotes['USD']?.price || 5.5;
 
     return investments.map((inv) => {
       const assetType = assetTypes.find((t) => t.id === inv.assetTypeId);
@@ -62,10 +62,8 @@ export default function InvestmentDashboard() {
       let newCurrentValue = inv.currentValue;
 
       if (assetType.name === 'Criptomoedas') {
-        // Crypto quotes come in BRL
         newCurrentValue = inv.quantity * quote.price;
       } else if (assetType.name === 'Ações EUA') {
-        // US stocks come in USD, convert to BRL
         newCurrentValue = inv.quantity * quote.price * dollarRate;
       }
 
@@ -86,7 +84,7 @@ export default function InvestmentDashboard() {
     setIsRefreshing(true);
     
     try {
-      const requests = getQuoteRequestsForInvestments(investments);
+      const requests = getQuoteRequestsForInvestments();
       await fetchMultipleQuotes(requests);
       setLastUpdate(new Date());
       
@@ -103,13 +101,13 @@ export default function InvestmentDashboard() {
 
   // Auto-fetch quotes on mount
   useEffect(() => {
-    const requests = getQuoteRequestsForInvestments(mockInvestments);
+    const requests = getQuoteRequestsForInvestments();
     if (requests.length > 0) {
       fetchMultipleQuotes(requests).then(() => {
         setLastUpdate(new Date());
       });
     }
-  }, []);
+  }, [investments]);
 
   const investmentsByType = assetTypes.map((type) => ({
     ...type,

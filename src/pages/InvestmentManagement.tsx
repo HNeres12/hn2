@@ -3,7 +3,8 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { InvestmentTable } from '@/components/dashboard/InvestmentTable';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { investments as mockInvestments, assetTypes } from '@/data/mockData';
+import { assetTypes } from '@/data/mockData';
+import { useInvestments } from '@/contexts/InvestmentContext';
 import { Investment } from '@/types/finance';
 import {
   Dialog,
@@ -26,7 +27,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 
 export default function InvestmentManagement() {
-  const [investments, setInvestments] = useState(mockInvestments);
+  const { investments, addInvestment, updateInvestment, deleteInvestment } = useInvestments();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingInvestment, setEditingInvestment] = useState<Investment | null>(null);
   const { toast } = useToast();
@@ -100,10 +101,10 @@ export default function InvestmentManagement() {
     };
 
     if (editingInvestment) {
-      setInvestments(investments.map((inv) => (inv.id === editingInvestment.id ? newInvestment : inv)));
+      updateInvestment(editingInvestment.id, newInvestment);
       toast({ title: 'Investimento atualizado com sucesso!' });
     } else {
-      setInvestments([...investments, newInvestment]);
+      addInvestment(newInvestment);
       toast({ title: 'Investimento cadastrado com sucesso!' });
     }
 
@@ -112,7 +113,7 @@ export default function InvestmentManagement() {
   };
 
   const handleDelete = (id: string) => {
-    setInvestments(investments.filter((inv) => inv.id !== id));
+    deleteInvestment(id);
     toast({ title: 'Investimento excluído com sucesso!' });
   };
 

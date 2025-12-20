@@ -9,16 +9,18 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts';
-import { Expense, Subscription, InstallmentPurchase } from '@/types/finance';
+import { Expense, Subscription, InstallmentPurchase, FixedExpense } from '@/types/finance';
 
 interface MonthlyChartProps {
   expenses: Expense[];
   subscriptions: Subscription[];
   installments: InstallmentPurchase[];
+  fixedExpenses?: FixedExpense[];
   months: number;
+  startDate?: Date;
 }
 
-export function MonthlyChart({ expenses, subscriptions, installments, months }: MonthlyChartProps) {
+export function MonthlyChart({ expenses, subscriptions, installments, fixedExpenses = [], months, startDate }: MonthlyChartProps) {
   const chartData = useMemo(() => {
     const data: Array<{
       month: string;
@@ -26,12 +28,13 @@ export function MonthlyChart({ expenses, subscriptions, installments, months }: 
       cartao: number;
       parcelas: number;
       assinaturas: number;
+      fixas: number;
     }> = [];
 
-    const today = new Date();
+    const baseDate = startDate || new Date();
     
-    for (let i = months - 1; i >= 0; i--) {
-      const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    for (let i = 0; i < months; i++) {
+      const date = new Date(baseDate.getFullYear(), baseDate.getMonth() + i, 1);
       const monthYear = date.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
       
       // Filter expenses for this month
@@ -50,11 +53,16 @@ export function MonthlyChart({ expenses, subscriptions, installments, months }: 
         .filter((s) => s.active)
         .reduce((sum, s) => sum + s.value, 0);
 
+      // Fixed expenses
+      const fixedTotal = fixedExpenses
+        .filter((f) => f.active)
+        .reduce((sum, f) => sum + f.value, 0);
+
       // Installments active in this month
       const installmentsTotal = installments.reduce((sum, inst) => {
-        const startDate = new Date(inst.startDate);
-        const monthsDiff = (date.getFullYear() - startDate.getFullYear()) * 12 + 
-                          (date.getMonth() - startDate.getMonth());
+        const instStartDate = new Date(inst.startDate);
+        const monthsDiff = (date.getFullYear() - instStartDate.getFullYear()) * 12 + 
+                          (date.getMonth() - instStartDate.getMonth());
         
         if (monthsDiff >= 0 && monthsDiff < inst.totalInstallments) {
           return sum + inst.installmentValue;
@@ -64,15 +72,16 @@ export function MonthlyChart({ expenses, subscriptions, installments, months }: 
 
       data.push({
         month: monthYear,
-        total: totalExpenses + subscriptionsTotal + installmentsTotal,
+        total: totalExpenses + subscriptionsTotal + installmentsTotal + fixedTotal,
         cartao: cardExpenses,
         parcelas: installmentsTotal,
         assinaturas: subscriptionsTotal,
+        fixas: fixedTotal,
       });
     }
 
     return data;
-  }, [expenses, subscriptions, installments, months]);
+  }, [expenses, subscriptions, installments, fixedExpenses, months, startDate]);
 
   const formatValue = (value: number) => {
     return `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`;
@@ -100,6 +109,10 @@ export function MonthlyChart({ expenses, subscriptions, installments, months }: 
               <linearGradient id="colorAssinaturas" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="hsl(142, 72%, 46%)" stopOpacity={0.3} />
                 <stop offset="95%" stopColor="hsl(142, 72%, 46%)" stopOpacity={0} />
+              </linearGradient>
+              <linearGradient id="colorFixas" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="hsl(200, 72%, 46%)" stopOpacity={0.3} />
+                <stop offset="95%" stopColor="hsl(200, 72%, 46%)" stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
@@ -139,6 +152,15 @@ export function MonthlyChart({ expenses, subscriptions, installments, months }: 
               stroke="hsl(262, 83%, 58%)"
               fillOpacity={1}
               fill="url(#colorCartao)"
+              strokeWidth={2}
+            />
+            <Area
+              type="monotone"
+              dataKey="fixas"
+              name="Fixas"
+              stroke="hsl(200, 72%, 46%)"
+              fillOpacity={1}
+              fill="url(#colorFixas)"
               strokeWidth={2}
             />
             <Area

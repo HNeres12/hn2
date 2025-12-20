@@ -56,6 +56,15 @@ export interface InstallmentPurchase {
   categoryId: string;
 }
 
+export interface FixedExpense {
+  id: string;
+  name: string;
+  value: number;
+  dueDay: number;
+  categoryId: string;
+  active: boolean;
+}
+
 export interface MonthlyOverview {
   month: string;
   year: number;
