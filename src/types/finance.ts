@@ -5,6 +5,16 @@ export interface AssetType {
   color: string;
 }
 
+export type InvestmentEntity = 'pf' | 'pj_operacional' | 'holding' | 'offshore' | 'llc';
+
+export const investmentEntities: { value: InvestmentEntity; label: string }[] = [
+  { value: 'pf', label: 'Pessoa Física' },
+  { value: 'pj_operacional', label: 'CNPJ Operacional' },
+  { value: 'holding', label: 'Holding Patrimonial' },
+  { value: 'offshore', label: 'Offshore' },
+  { value: 'llc', label: 'LLC' },
+];
+
 export interface Investment {
   id: string;
   assetTypeId: string;
@@ -14,6 +24,7 @@ export interface Investment {
   investedValue: number;
   currentValue: number;
   currency: 'BRL' | 'USD';
+  entity?: InvestmentEntity;
   notes?: string;
   createdAt: Date;
   updatedAt: Date;

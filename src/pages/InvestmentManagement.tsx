@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { assetTypes } from '@/data/mockData';
 import { useInvestments } from '@/contexts/InvestmentContext';
-import { Investment } from '@/types/finance';
+import { Investment, investmentEntities, InvestmentEntity } from '@/types/finance';
 import {
   Dialog,
   DialogContent,
@@ -40,6 +40,7 @@ export default function InvestmentManagement() {
     investedValue: '',
     currentValue: '',
     currency: 'BRL' as 'BRL' | 'USD',
+    entity: '' as InvestmentEntity | '',
     notes: '',
   });
 
@@ -52,6 +53,7 @@ export default function InvestmentManagement() {
       investedValue: '',
       currentValue: '',
       currency: 'BRL',
+      entity: '',
       notes: '',
     });
     setEditingInvestment(null);
@@ -68,6 +70,7 @@ export default function InvestmentManagement() {
         investedValue: investment.investedValue.toString(),
         currentValue: investment.currentValue.toString(),
         currency: investment.currency,
+        entity: investment.entity || '',
         notes: investment.notes || '',
       });
     } else {
@@ -95,6 +98,7 @@ export default function InvestmentManagement() {
       investedValue: parseFloat(formData.investedValue),
       currentValue: parseFloat(formData.currentValue) || parseFloat(formData.investedValue),
       currency: formData.currency,
+      entity: formData.entity || undefined,
       notes: formData.notes || undefined,
       createdAt: editingInvestment?.createdAt || new Date(),
       updatedAt: new Date(),
@@ -217,11 +221,30 @@ export default function InvestmentManagement() {
                       <SelectItem value="BRL">BRL (R$)</SelectItem>
                       <SelectItem value="USD">USD ($)</SelectItem>
                     </SelectContent>
-                  </Select>
-                </div>
+                </Select>
               </div>
+            </div>
 
-              <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="entity">Entidade</Label>
+              <Select
+                value={formData.entity}
+                onValueChange={(value: InvestmentEntity) => setFormData({ ...formData, entity: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a entidade" />
+                </SelectTrigger>
+                <SelectContent>
+                  {investmentEntities.map((ent) => (
+                    <SelectItem key={ent.value} value={ent.value}>
+                      {ent.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="investedValue">Valor Investido *</Label>
                   <Input

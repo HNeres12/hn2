@@ -1,13 +1,12 @@
 import { useMemo } from 'react';
 import {
-  AreaChart,
-  Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Legend,
 } from 'recharts';
 import { Expense, Subscription, InstallmentPurchase, FixedExpense } from '@/types/finance';
 
@@ -25,10 +24,6 @@ export function MonthlyChart({ expenses, subscriptions, installments, fixedExpen
     const data: Array<{
       month: string;
       total: number;
-      cartao: number;
-      parcelas: number;
-      assinaturas: number;
-      fixas: number;
     }> = [];
 
     const baseDate = startDate || new Date();
@@ -44,9 +39,6 @@ export function MonthlyChart({ expenses, subscriptions, installments, fixedExpen
       });
 
       const totalExpenses = monthExpenses.reduce((sum, exp) => sum + exp.value, 0);
-      const cardExpenses = monthExpenses
-        .filter((exp) => exp.paymentMethod === 'card')
-        .reduce((sum, exp) => sum + exp.value, 0);
 
       // Subscriptions (same every month for active ones)
       const subscriptionsTotal = subscriptions
@@ -73,10 +65,6 @@ export function MonthlyChart({ expenses, subscriptions, installments, fixedExpen
       data.push({
         month: monthYear,
         total: totalExpenses + subscriptionsTotal + installmentsTotal + fixedTotal,
-        cartao: cardExpenses,
-        parcelas: installmentsTotal,
-        assinaturas: subscriptionsTotal,
-        fixas: fixedTotal,
       });
     }
 
@@ -92,96 +80,46 @@ export function MonthlyChart({ expenses, subscriptions, installments, fixedExpen
       <h3 className="font-semibold mb-4">Evolução Mensal</h3>
       <div className="h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+          <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(174, 72%, 46%)" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="hsl(174, 72%, 46%)" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="colorCartao" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(262, 83%, 58%)" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="hsl(262, 83%, 58%)" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="colorParcelas" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(38, 92%, 50%)" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="hsl(38, 92%, 50%)" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="colorAssinaturas" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(142, 72%, 46%)" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="hsl(142, 72%, 46%)" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="colorFixas" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(200, 72%, 46%)" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="hsl(200, 72%, 46%)" stopOpacity={0} />
+                <stop offset="0%" stopColor="hsl(174, 72%, 46%)" stopOpacity={1} />
+                <stop offset="100%" stopColor="hsl(174, 72%, 36%)" stopOpacity={0.8} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" />
+            <CartesianGrid strokeDasharray="3 3" className="stroke-border/30" vertical={false} />
             <XAxis 
               dataKey="month" 
               tick={{ fontSize: 12 }}
               className="text-muted-foreground"
+              axisLine={false}
+              tickLine={false}
             />
             <YAxis 
               tickFormatter={(value) => `${(value / 1000).toFixed(0)}k`}
               tick={{ fontSize: 12 }}
               className="text-muted-foreground"
+              axisLine={false}
+              tickLine={false}
             />
             <Tooltip
-              formatter={(value: number, name: string) => [formatValue(value), name]}
+              formatter={(value: number) => [formatValue(value), 'Total']}
               contentStyle={{
                 backgroundColor: 'hsl(var(--card))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: '8px',
               }}
               labelStyle={{ color: 'hsl(var(--foreground))' }}
+              cursor={{ fill: 'hsl(var(--muted))', opacity: 0.3 }}
             />
-            <Legend />
-            <Area
-              type="monotone"
+            <Bar
               dataKey="total"
               name="Total"
-              stroke="hsl(174, 72%, 46%)"
-              fillOpacity={1}
               fill="url(#colorTotal)"
-              strokeWidth={2}
+              radius={[4, 4, 0, 0]}
+              maxBarSize={60}
             />
-            <Area
-              type="monotone"
-              dataKey="cartao"
-              name="Cartão"
-              stroke="hsl(262, 83%, 58%)"
-              fillOpacity={1}
-              fill="url(#colorCartao)"
-              strokeWidth={2}
-            />
-            <Area
-              type="monotone"
-              dataKey="fixas"
-              name="Fixas"
-              stroke="hsl(200, 72%, 46%)"
-              fillOpacity={1}
-              fill="url(#colorFixas)"
-              strokeWidth={2}
-            />
-            <Area
-              type="monotone"
-              dataKey="parcelas"
-              name="Parcelas"
-              stroke="hsl(38, 92%, 50%)"
-              fillOpacity={1}
-              fill="url(#colorParcelas)"
-              strokeWidth={2}
-            />
-            <Area
-              type="monotone"
-              dataKey="assinaturas"
-              name="Assinaturas"
-              stroke="hsl(142, 72%, 46%)"
-              fillOpacity={1}
-              fill="url(#colorAssinaturas)"
-              strokeWidth={2}
-            />
-          </AreaChart>
+          </BarChart>
         </ResponsiveContainer>
       </div>
     </div>

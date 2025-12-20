@@ -1,6 +1,6 @@
 import { TrendingUp, TrendingDown, MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Investment, AssetType } from '@/types/finance';
+import { Investment, AssetType, investmentEntities, InvestmentEntity } from '@/types/finance';
 import {
   Table,
   TableBody,
@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface InvestmentTableProps {
   investments: Investment[];
@@ -29,6 +30,11 @@ export function InvestmentTable({ investments, assetTypes, onEdit, onDelete }: I
     return assetTypes.find((t) => t.id === id)?.name || 'Desconhecido';
   };
 
+  const getEntityLabel = (entity?: InvestmentEntity) => {
+    if (!entity) return null;
+    return investmentEntities.find((e) => e.value === entity)?.label || entity;
+  };
+
   return (
     <div className="glass-card rounded-xl overflow-hidden animate-fade-in">
       <Table>
@@ -36,11 +42,11 @@ export function InvestmentTable({ investments, assetTypes, onEdit, onDelete }: I
           <TableRow className="border-border hover:bg-transparent">
             <TableHead className="text-muted-foreground">Ativo</TableHead>
             <TableHead className="text-muted-foreground">Tipo</TableHead>
+            <TableHead className="text-muted-foreground">Entidade</TableHead>
             <TableHead className="text-muted-foreground text-right">Quantidade</TableHead>
             <TableHead className="text-muted-foreground text-right">Investido</TableHead>
             <TableHead className="text-muted-foreground text-right">Valor Atual</TableHead>
             <TableHead className="text-muted-foreground text-right">Variação</TableHead>
-            <TableHead className="text-muted-foreground text-center">Moeda</TableHead>
             <TableHead className="text-muted-foreground w-12"></TableHead>
           </TableRow>
         </TableHeader>
@@ -49,6 +55,7 @@ export function InvestmentTable({ investments, assetTypes, onEdit, onDelete }: I
             const variation = investment.currentValue - investment.investedValue;
             const variationPercent = (variation / investment.investedValue) * 100;
             const isPositive = variation >= 0;
+            const entityLabel = getEntityLabel(investment.entity);
 
             return (
               <TableRow key={investment.id} className="border-border">
@@ -63,14 +70,23 @@ export function InvestmentTable({ investments, assetTypes, onEdit, onDelete }: I
                 <TableCell className="text-muted-foreground">
                   {getAssetTypeName(investment.assetTypeId)}
                 </TableCell>
+                <TableCell>
+                  {entityLabel ? (
+                    <Badge variant="outline" className="text-xs">
+                      {entityLabel}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground text-xs">-</span>
+                  )}
+                </TableCell>
                 <TableCell className="text-right font-mono">
                   {investment.quantity.toLocaleString('pt-BR', { maximumFractionDigits: 8 })}
                 </TableCell>
                 <TableCell className="text-right font-mono">
-                  R$ {investment.investedValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {investment.currency === 'USD' ? '$' : 'R$'} {investment.investedValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </TableCell>
                 <TableCell className="text-right font-mono font-semibold">
-                  R$ {investment.currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {investment.currency === 'USD' ? '$' : 'R$'} {investment.currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-1">
@@ -83,11 +99,6 @@ export function InvestmentTable({ investments, assetTypes, onEdit, onDelete }: I
                       {isPositive ? '+' : ''}{variationPercent.toFixed(2)}%
                     </span>
                   </div>
-                </TableCell>
-                <TableCell className="text-center">
-                  <span className="px-2 py-1 rounded-md bg-secondary text-xs font-medium">
-                    {investment.currency}
-                  </span>
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
