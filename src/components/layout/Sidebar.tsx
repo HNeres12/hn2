@@ -3,13 +3,10 @@ import {
   LayoutDashboard,
   Wallet,
   PiggyBank,
-  CreditCard,
   Receipt,
-  Repeat,
   Settings,
   ChevronLeft,
   ChevronRight,
-  Layers,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -18,11 +15,8 @@ import { Button } from '@/components/ui/button';
 const navItems = [
   { path: '/', label: 'Dashboard Investimentos', icon: LayoutDashboard },
   { path: '/investments', label: 'Gestão de Investimentos', icon: Wallet },
-  { path: '/asset-types', label: 'Tipos de Ativos', icon: Layers },
   { path: '/finances', label: 'Dashboard Finanças', icon: PiggyBank },
   { path: '/expenses', label: 'Cadastro de Despesas', icon: Receipt },
-  { path: '/subscriptions', label: 'Assinaturas', icon: Repeat },
-  { path: '/installments', label: 'Compras Parceladas', icon: CreditCard },
   { path: '/settings', label: 'Configurações', icon: Settings },
 ];
 
