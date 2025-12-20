@@ -105,7 +105,35 @@ async function getCryptoQuote(ticker: string): Promise<QuoteResponse> {
 }
 
 async function getDollarQuote(): Promise<QuoteResponse> {
-  // Try AwesomeAPI first
+  // Try BCB (Banco Central do Brasil) API first - most reliable
+  try {
+    // Get latest PTAX quote (official BCB rate)
+    const today = new Date();
+    const dateStr = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}-${today.getFullYear()}`;
+    
+    const bcbResponse = await fetch(
+      `https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao='${dateStr}'&$format=json`
+    );
+    
+    if (bcbResponse.ok) {
+      const bcbData = await bcbResponse.json();
+      if (bcbData.value && bcbData.value.length > 0) {
+        const lastQuote = bcbData.value[bcbData.value.length - 1];
+        console.log('BCB PTAX quote found:', lastQuote);
+        return {
+          ticker: 'USD',
+          price: lastQuote.cotacaoVenda,
+          currency: 'BRL',
+          source: 'BCB PTAX',
+          updatedAt: new Date().toISOString(),
+        };
+      }
+    }
+  } catch (error) {
+    console.warn('BCB API failed:', error);
+  }
+
+  // Fallback: Try AwesomeAPI
   try {
     const response = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL');
     
@@ -122,12 +150,11 @@ async function getDollarQuote(): Promise<QuoteResponse> {
       };
     }
   } catch (error) {
-    console.warn('AwesomeAPI failed, using fallback:', error);
+    console.warn('AwesomeAPI failed:', error);
   }
 
-  // Fallback: Use approximate rate (updated periodically)
-  // In production, you could cache the last known rate
-  const fallbackRate = 6.15; // Approximate USD/BRL rate as of Dec 2024
+  // Last fallback: Use approximate rate
+  const fallbackRate = 6.07;
   
   console.log('Using fallback dollar rate:', fallbackRate);
   
