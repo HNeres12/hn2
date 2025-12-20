@@ -105,41 +105,16 @@ async function getCryptoQuote(ticker: string): Promise<QuoteResponse> {
 }
 
 async function getDollarQuote(): Promise<QuoteResponse> {
-  // Try BCB (Banco Central do Brasil) API first - most reliable
+  // Try AwesomeAPI first - usually most up-to-date
   try {
-    // Get latest PTAX quote (official BCB rate)
-    const today = new Date();
-    const dateStr = `${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}-${today.getFullYear()}`;
-    
-    const bcbResponse = await fetch(
-      `https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao='${dateStr}'&$format=json`
-    );
-    
-    if (bcbResponse.ok) {
-      const bcbData = await bcbResponse.json();
-      if (bcbData.value && bcbData.value.length > 0) {
-        const lastQuote = bcbData.value[bcbData.value.length - 1];
-        console.log('BCB PTAX quote found:', lastQuote);
-        return {
-          ticker: 'USD',
-          price: lastQuote.cotacaoVenda,
-          currency: 'BRL',
-          source: 'BCB PTAX',
-          updatedAt: new Date().toISOString(),
-        };
-      }
-    }
-  } catch (error) {
-    console.warn('BCB API failed:', error);
-  }
-
-  // Fallback: Try AwesomeAPI
-  try {
-    const response = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL');
+    const response = await fetch('https://economia.awesomeapi.com.br/json/last/USD-BRL', {
+      headers: { 'Accept': 'application/json' }
+    });
     
     if (response.ok) {
       const data = await response.json();
       const usdBrl = data.USDBRL;
+      console.log('AwesomeAPI quote found:', usdBrl.bid);
 
       return {
         ticker: 'USD',
@@ -148,14 +123,54 @@ async function getDollarQuote(): Promise<QuoteResponse> {
         source: 'AwesomeAPI',
         updatedAt: new Date().toISOString(),
       };
+    } else {
+      console.warn('AwesomeAPI returned status:', response.status);
     }
   } catch (error) {
     console.warn('AwesomeAPI failed:', error);
   }
 
-  // Last fallback: Use approximate rate
-  const fallbackRate = 6.07;
-  
+  // Fallback: Try BCB PTAX API
+  try {
+    // BCB expects date in MM-dd-yyyy format, try yesterday if today has no data yet
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const formatDate = (d: Date) => {
+      return `${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}-${d.getFullYear()}`;
+    };
+    
+    // Try today first, then yesterday
+    for (const date of [today, yesterday]) {
+      const dateStr = formatDate(date);
+      const bcbUrl = `https://olinda.bcb.gov.br/olinda/servico/PTAX/versao/v1/odata/CotacaoDolarDia(dataCotacao=@dataCotacao)?@dataCotacao='${dateStr}'&$format=json`;
+      
+      console.log('Trying BCB with date:', dateStr);
+      
+      const bcbResponse = await fetch(bcbUrl);
+      
+      if (bcbResponse.ok) {
+        const bcbData = await bcbResponse.json();
+        if (bcbData.value && bcbData.value.length > 0) {
+          const lastQuote = bcbData.value[bcbData.value.length - 1];
+          console.log('BCB PTAX quote found:', lastQuote.cotacaoVenda);
+          return {
+            ticker: 'USD',
+            price: lastQuote.cotacaoVenda,
+            currency: 'BRL',
+            source: 'BCB PTAX',
+            updatedAt: new Date().toISOString(),
+          };
+        }
+      }
+    }
+  } catch (error) {
+    console.warn('BCB API failed:', error);
+  }
+
+  // Last fallback
+  const fallbackRate = 5.54;
   console.log('Using fallback dollar rate:', fallbackRate);
   
   return {
