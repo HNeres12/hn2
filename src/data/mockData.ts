@@ -104,23 +104,23 @@ export const expenseCategories: ExpenseCategory[] = [
 ];
 
 export const expenses: Expense[] = [
-  { id: '1', categoryId: '1', name: 'Aluguel', value: 2500, paymentMethod: 'debit', date: new Date('2024-12-05') },
-  { id: '2', categoryId: '1', name: 'Condomínio', value: 850, paymentMethod: 'debit', date: new Date('2024-12-10') },
-  { id: '3', categoryId: '1', name: 'Supermercado', value: 1200, paymentMethod: 'card', date: new Date('2024-12-08') },
-  { id: '4', categoryId: '2', name: 'Cinema', value: 120, paymentMethod: 'card', date: new Date('2024-12-14') },
-  { id: '5', categoryId: '2', name: 'iFood', value: 350, paymentMethod: 'card', date: new Date('2024-12-15') },
-  { id: '6', categoryId: '3', name: 'Doação ONG', value: 200, paymentMethod: 'pix', date: new Date('2024-12-10') },
-  { id: '7', categoryId: '4', name: 'Curso de Investimentos', value: 500, paymentMethod: 'card', date: new Date('2024-12-01') },
-  { id: '8', categoryId: '5', name: 'Aporte Tesouro Selic', value: 1000, paymentMethod: 'debit', date: new Date('2024-12-15') },
+  { id: '1', categoryId: '1', name: 'Aluguel', value: 2500, paymentMethod: 'debit', month: 12, year: 2024 },
+  { id: '2', categoryId: '1', name: 'Condomínio', value: 850, paymentMethod: 'debit', month: 12, year: 2024 },
+  { id: '3', categoryId: '1', name: 'Supermercado', value: 1200, paymentMethod: 'card', month: 12, year: 2024 },
+  { id: '4', categoryId: '2', name: 'Cinema', value: 120, paymentMethod: 'card', month: 12, year: 2024 },
+  { id: '5', categoryId: '2', name: 'iFood', value: 350, paymentMethod: 'card', month: 12, year: 2024 },
+  { id: '6', categoryId: '3', name: 'Doação ONG', value: 200, paymentMethod: 'pix', month: 12, year: 2024 },
+  { id: '7', categoryId: '4', name: 'Curso de Investimentos', value: 500, paymentMethod: 'card', month: 11, year: 2024 },
+  { id: '8', categoryId: '5', name: 'Aporte Tesouro Selic', value: 1000, paymentMethod: 'debit', month: 12, year: 2024 },
   // Historical data for charts
-  { id: '9', categoryId: '1', name: 'Aluguel', value: 2500, paymentMethod: 'debit', date: new Date('2024-11-05') },
-  { id: '10', categoryId: '1', name: 'Supermercado', value: 1100, paymentMethod: 'card', date: new Date('2024-11-08') },
-  { id: '11', categoryId: '2', name: 'Restaurante', value: 280, paymentMethod: 'card', date: new Date('2024-11-20') },
-  { id: '12', categoryId: '1', name: 'Aluguel', value: 2500, paymentMethod: 'debit', date: new Date('2024-10-05') },
-  { id: '13', categoryId: '1', name: 'Supermercado', value: 950, paymentMethod: 'card', date: new Date('2024-10-10') },
-  { id: '14', categoryId: '5', name: 'Aporte FII', value: 800, paymentMethod: 'debit', date: new Date('2024-10-15') },
-  { id: '15', categoryId: '1', name: 'Aluguel', value: 2500, paymentMethod: 'debit', date: new Date('2024-09-05') },
-  { id: '16', categoryId: '2', name: 'Viagem', value: 1500, paymentMethod: 'card', date: new Date('2024-09-15') },
+  { id: '9', categoryId: '1', name: 'Aluguel', value: 2500, paymentMethod: 'debit', month: 11, year: 2024 },
+  { id: '10', categoryId: '1', name: 'Supermercado', value: 1100, paymentMethod: 'card', month: 11, year: 2024 },
+  { id: '11', categoryId: '2', name: 'Restaurante', value: 280, paymentMethod: 'card', month: 11, year: 2024 },
+  { id: '12', categoryId: '1', name: 'Aluguel', value: 2500, paymentMethod: 'debit', month: 10, year: 2024 },
+  { id: '13', categoryId: '1', name: 'Supermercado', value: 950, paymentMethod: 'card', month: 10, year: 2024 },
+  { id: '14', categoryId: '5', name: 'Aporte FII', value: 800, paymentMethod: 'debit', month: 10, year: 2024 },
+  { id: '15', categoryId: '1', name: 'Aluguel', value: 2500, paymentMethod: 'debit', month: 9, year: 2024 },
+  { id: '16', categoryId: '2', name: 'Viagem', value: 1500, paymentMethod: 'card', month: 9, year: 2024 },
 ];
 
 export const subscriptions: Subscription[] = [
