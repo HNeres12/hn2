@@ -10,6 +10,10 @@ interface AssetTypeCardProps {
 }
 
 export function AssetTypeCard({ assetType, investments, index }: AssetTypeCardProps) {
+  // Detect if all investments in this category are in USD
+  const isUsdCategory = investments.length > 0 && investments.every((inv) => inv.currency === 'USD');
+  const currencySymbol = isUsdCategory ? '$' : 'R$';
+
   const totalInvested = investments.reduce((sum, inv) => sum + (inv.investedValue || 0), 0);
   const totalCurrent = investments.reduce((sum, inv) => sum + (inv.currentValue || 0), 0);
   const variation = totalCurrent - totalInvested;
@@ -41,7 +45,7 @@ export function AssetTypeCard({ assetType, investments, index }: AssetTypeCardPr
         <div>
           <p className="text-xs text-muted-foreground">Valor Atual</p>
           <p className="font-mono text-xl font-semibold">
-            R$ {totalCurrent.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            {currencySymbol} {totalCurrent.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
         </div>
 
@@ -50,7 +54,7 @@ export function AssetTypeCard({ assetType, investments, index }: AssetTypeCardPr
             <p className="text-xs text-muted-foreground">Investido</p>
             {hasInvestedData ? (
               <p className="font-mono text-sm">
-                R$ {totalInvested.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                {currencySymbol} {totalInvested.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </p>
             ) : (
               <p className="text-xs text-muted-foreground">Não informado</p>
@@ -73,19 +77,22 @@ export function AssetTypeCard({ assetType, investments, index }: AssetTypeCardPr
 
       <div className="mt-4 pt-4 border-t border-border">
         <div className="space-y-2 max-h-32 overflow-y-auto">
-          {investments.map((inv) => (
-            <div key={inv.id} className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground truncate max-w-[120px]">
-                {inv.ticker || inv.name}
-              </span>
-              <span className="font-mono">
-                {inv.currentValue !== undefined 
-                  ? `R$ ${inv.currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-                  : '-'
-                }
-              </span>
-            </div>
-          ))}
+          {investments.map((inv) => {
+            const invSymbol = inv.currency === 'USD' ? '$' : 'R$';
+            return (
+              <div key={inv.id} className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground truncate max-w-[120px]">
+                  {inv.ticker || inv.name}
+                </span>
+                <span className="font-mono">
+                  {inv.currentValue !== undefined 
+                    ? `${invSymbol} ${inv.currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                    : '-'
+                  }
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
