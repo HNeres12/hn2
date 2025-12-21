@@ -11,20 +11,18 @@ interface AssetTypeCardProps {
 }
 
 export function AssetTypeCard({ assetType, investments, index, dollarRate = 5.5 }: AssetTypeCardProps) {
-  // Detect if all investments in this category are in USD
-  const isUsdCategory = investments.length > 0 && investments.every((inv) => inv.currency === 'USD');
-  const currencySymbol = isUsdCategory ? '$' : 'R$';
+  // Helper to convert value to BRL based on currency
+  const toBRL = (value: number, currency?: string) => {
+    return currency === 'USD' ? value * dollarRate : value;
+  };
 
-  const totalInvested = investments.reduce((sum, inv) => sum + (inv.investedValue || 0), 0);
-  const totalCurrent = investments.reduce((sum, inv) => sum + (inv.currentValue || 0), 0);
-  const variation = totalCurrent - totalInvested;
-  const variationPercent = totalInvested > 0 ? (variation / totalInvested) * 100 : 0;
+  // Calculate totals in BRL for proper aggregation
+  const totalInvestedBRL = investments.reduce((sum, inv) => sum + toBRL(inv.investedValue || 0, inv.currency), 0);
+  const totalCurrentBRL = investments.reduce((sum, inv) => sum + toBRL(inv.currentValue || 0, inv.currency), 0);
+  const variation = totalCurrentBRL - totalInvestedBRL;
+  const variationPercent = totalInvestedBRL > 0 ? (variation / totalInvestedBRL) * 100 : 0;
   const isPositive = variation >= 0;
-  const hasInvestedData = totalInvested > 0;
-
-  // Calculate BRL equivalents for USD categories
-  const totalCurrentBRL = isUsdCategory ? totalCurrent * dollarRate : totalCurrent;
-  const totalInvestedBRL = isUsdCategory ? totalInvested * dollarRate : totalInvested;
+  const hasInvestedData = totalInvestedBRL > 0;
 
   const IconComponent = getIcon(assetType.icon);
 
@@ -50,29 +48,17 @@ export function AssetTypeCard({ assetType, investments, index, dollarRate = 5.5 
         <div>
           <p className="text-xs text-muted-foreground">Valor Atual</p>
           <p className="font-mono text-xl font-semibold">
-            {currencySymbol} {totalCurrent.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            R$ {totalCurrentBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
-          {isUsdCategory && (
-            <p className="font-mono text-sm text-muted-foreground">
-              ≈ R$ {totalCurrentBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </p>
-          )}
         </div>
 
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Investido</p>
             {hasInvestedData ? (
-              <>
-                <p className="font-mono text-sm">
-                  {currencySymbol} {totalInvested.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-                {isUsdCategory && (
-                  <p className="font-mono text-xs text-muted-foreground">
-                    ≈ R$ {totalInvestedBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                  </p>
-                )}
-              </>
+              <p className="font-mono text-sm">
+                R$ {totalInvestedBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
             ) : (
               <p className="text-xs text-muted-foreground">Não informado</p>
             )}
@@ -95,8 +81,9 @@ export function AssetTypeCard({ assetType, investments, index, dollarRate = 5.5 
       <div className="mt-4 pt-4 border-t border-border">
         <div className="space-y-2 max-h-32 overflow-y-auto">
           {investments.map((inv) => {
-            const invSymbol = inv.currency === 'USD' ? '$' : 'R$';
-            const valueBRL = inv.currency === 'USD' && inv.currentValue !== undefined 
+            const isUSD = inv.currency === 'USD';
+            const invSymbol = isUSD ? '$' : 'R$';
+            const valueBRL = isUSD && inv.currentValue !== undefined 
               ? inv.currentValue * dollarRate 
               : null;
             return (
@@ -105,15 +92,26 @@ export function AssetTypeCard({ assetType, investments, index, dollarRate = 5.5 
                   {inv.ticker || inv.name}
                 </span>
                 <div className="text-right">
-                  <span className="font-mono">
-                    {inv.currentValue !== undefined 
-                      ? `${invSymbol} ${inv.currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-                      : '-'
-                    }
-                  </span>
-                  {valueBRL !== null && (
-                    <span className="font-mono text-xs text-muted-foreground block">
-                      ≈ R$ {valueBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {isUSD ? (
+                    <>
+                      <span className="font-mono">
+                        {inv.currentValue !== undefined 
+                          ? `$ ${inv.currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                          : '-'
+                        }
+                      </span>
+                      {valueBRL !== null && (
+                        <span className="font-mono text-xs text-muted-foreground block">
+                          ≈ R$ {valueBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="font-mono">
+                      {inv.currentValue !== undefined 
+                        ? `R$ ${inv.currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                        : '-'
+                      }
                     </span>
                   )}
                 </div>
