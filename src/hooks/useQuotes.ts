@@ -14,7 +14,22 @@ export interface Quote {
 type QuoteType = 'crypto' | 'stock_us' | 'treasury' | 'dollar';
 
 type QuoteCache = Record<string, Quote>;
-const QUOTES_CACHE_KEY = 'quotes_cache_v1';
+const QUOTES_CACHE_KEY = 'quotes_cache_v2';
+
+function normalizeTicker(ticker: string) {
+  return ticker.trim().toUpperCase();
+}
+
+/**
+ * Evita colisão de chaves quando existem diferentes tipos de cotações com o mesmo ticker (ex: "USD"):
+ * - 'dollar' usa a chave 'USD' (câmbio)
+ * - outros tipos usam `${type}:USD` quando ticker === 'USD'
+ */
+function quoteKey(type: QuoteType, ticker: string) {
+  const t = normalizeTicker(ticker);
+  if (t === 'USD' && type !== 'dollar') return `${type}:${t}`;
+  return t;
+}
 
 function readQuoteCache(): QuoteCache {
   try {
@@ -71,7 +86,8 @@ export function useQuotes() {
         const incoming = data as Quote;
 
         const cache = readQuoteCache();
-        const cached = cache[incoming.ticker];
+        const key = quoteKey(type, incoming.ticker);
+        const cached = cache[key];
 
         const effective: Quote = shouldUseCachedQuote(incoming, cached)
           ? {
@@ -88,13 +104,13 @@ export function useQuotes() {
           incoming.currency === 'USD' && incoming.price === 100 && incoming.isEstimate === true;
 
         if (!isUsd100Estimate) {
-          cache[incoming.ticker] = incoming;
+          cache[key] = incoming;
           writeQuoteCache(cache);
         }
 
         setQuotes((prev) => ({
           ...prev,
-          [effective.ticker]: effective,
+          [key]: effective,
         }));
 
         return effective;

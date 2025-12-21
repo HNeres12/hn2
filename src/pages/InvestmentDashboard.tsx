@@ -47,7 +47,12 @@ export default function InvestmentDashboard() {
         return;
       }
 
-      // Ativos sem ticker não precisam de cotação (ex: "Disponível" em caixa)
+      // Disponível (caixa): não depende de ticker/cotação
+      if (assetType.name === 'Disponível') {
+        return;
+      }
+
+      // Ativos sem ticker não precisam de cotação
       if (!inv.ticker) return;
 
       // Criptomoedas
@@ -98,10 +103,19 @@ export default function InvestmentDashboard() {
         };
       }
 
-      // Sem ticker: mantém valor original (útil para ativos como "Disponível" em caixa)
+      // Disponível (caixa): mantém valor original (em USD ou BRL conforme cadastro)
+      if (assetType.name === 'Disponível') return inv;
+
+      // Sem ticker: mantém valor original
       if (!inv.ticker) return inv;
 
-      const quote = quotes[inv.ticker.toUpperCase()];
+      const ticker = inv.ticker.toUpperCase();
+      const key =
+        (inv.currency === 'USD' || assetType.name === 'Ações EUA') && ticker === 'USD'
+          ? 'stock_us:USD'
+          : ticker;
+
+      const quote = quotes[key];
       if (!quote) return inv;
 
       let newCurrentValue = inv.currentValue;
