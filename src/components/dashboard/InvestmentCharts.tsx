@@ -120,6 +120,11 @@ export function InvestmentCharts({ investments }: InvestmentChartsProps) {
                   backgroundColor: 'hsl(var(--card))',
                   border: '1px solid hsl(var(--border))',
                   borderRadius: '8px',
+                }}
+                itemStyle={{
+                  color: 'hsl(var(--foreground))',
+                }}
+                labelStyle={{
                   color: 'hsl(var(--foreground))',
                 }}
               />
@@ -166,6 +171,11 @@ export function InvestmentCharts({ investments }: InvestmentChartsProps) {
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '8px',
+                  }}
+                  itemStyle={{
+                    color: 'hsl(var(--foreground))',
+                  }}
+                  labelStyle={{
                     color: 'hsl(var(--foreground))',
                   }}
                 />
