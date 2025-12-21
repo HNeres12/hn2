@@ -241,9 +241,6 @@ export default function InvestmentDashboard() {
 
         <PatrimonyCard
           totalValue={totalCurrent}
-          totalInvested={totalInvested}
-          variation={variation}
-          variationPercent={variationPercent}
           onRefresh={handleRefresh}
           isRefreshing={isRefreshing || isLoading}
         />
