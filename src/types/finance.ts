@@ -22,7 +22,7 @@ export interface Investment {
   ticker?: string;
   quantity: number;
   investedValue?: number; // Opcional para investimentos antigos sem valor conhecido
-  currentValue: number;
+  currentValue?: number; // Opcional - calculado automaticamente quando há cotação
   currency: 'BRL' | 'USD';
   entity?: InvestmentEntity;
   broker?: string; // Corretora/local onde o ativo está investido

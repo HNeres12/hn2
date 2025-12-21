@@ -53,9 +53,11 @@ export function InvestmentTable({ investments, assetTypes, onEdit, onDelete }: I
         </TableHeader>
         <TableBody>
           {investments.map((investment) => {
+            const currentValue = investment.currentValue || 0;
             const hasInvestedValue = investment.investedValue !== undefined && investment.investedValue > 0;
-            const variation = hasInvestedValue ? investment.currentValue - investment.investedValue : null;
-            const variationPercent = hasInvestedValue && investment.investedValue 
+            const hasCurrentValue = investment.currentValue !== undefined && investment.currentValue > 0;
+            const variation = hasInvestedValue && hasCurrentValue ? currentValue - investment.investedValue! : null;
+            const variationPercent = hasInvestedValue && hasCurrentValue && investment.investedValue 
               ? (variation! / investment.investedValue) * 100 
               : null;
             const isPositive = variation !== null ? variation >= 0 : true;
@@ -105,7 +107,13 @@ export function InvestmentTable({ investments, assetTypes, onEdit, onDelete }: I
                   )}
                 </TableCell>
                 <TableCell className="text-right font-mono font-semibold">
-                  {investment.currency === 'USD' ? '$' : 'R$'} {investment.currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {hasCurrentValue ? (
+                    <>
+                      {investment.currency === 'USD' ? '$' : 'R$'} {currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground text-xs">Aguardando cotação</span>
+                  )}
                 </TableCell>
                 <TableCell className="text-right">
                   {variationPercent !== null ? (

@@ -83,7 +83,7 @@ export default function InvestmentManagement() {
   };
 
   const handleSave = () => {
-    if (!formData.assetTypeId || !formData.name || !formData.quantity || !formData.currentValue) {
+    if (!formData.assetTypeId || !formData.name || !formData.quantity) {
       toast({
         title: 'Erro',
         description: 'Preencha todos os campos obrigatórios',
@@ -99,7 +99,7 @@ export default function InvestmentManagement() {
       ticker: formData.ticker || undefined,
       quantity: parseFloat(formData.quantity),
       investedValue: formData.investedValue ? parseFloat(formData.investedValue) : undefined,
-      currentValue: parseFloat(formData.currentValue),
+      currentValue: formData.currentValue ? parseFloat(formData.currentValue) : undefined,
       currency: formData.currency,
       entity: formData.entity || undefined,
       broker: formData.broker || undefined,
@@ -275,15 +275,18 @@ export default function InvestmentManagement() {
                   </p>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="currentValue">Valor Atual *</Label>
+                  <Label htmlFor="currentValue">Valor Atual</Label>
                   <Input
                     id="currentValue"
                     type="number"
                     step="0.01"
                     value={formData.currentValue}
                     onChange={(e) => setFormData({ ...formData, currentValue: e.target.value })}
-                    placeholder="0.00"
+                    placeholder="Calculado pela cotação"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Opcional - será calculado automaticamente pela cotação quando disponível
+                  </p>
                 </div>
               </div>
 
