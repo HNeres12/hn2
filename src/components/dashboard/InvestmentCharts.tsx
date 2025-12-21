@@ -12,10 +12,17 @@ import { useAssetTypes } from '@/contexts/AssetTypeContext';
 
 interface InvestmentChartsProps {
   investments: Investment[];
+  dollarRate: number;
 }
 
-export function InvestmentCharts({ investments }: InvestmentChartsProps) {
+export function InvestmentCharts({ investments, dollarRate }: InvestmentChartsProps) {
   const { assetTypes } = useAssetTypes();
+
+  // Helper to convert to BRL
+  const toBRL = (inv: Investment) => {
+    const value = inv.currentValue || 0;
+    return inv.currency === 'USD' ? value * dollarRate : value;
+  };
 
   // Chart by asset type
   const typeChartData = useMemo(() => {
@@ -31,12 +38,12 @@ export function InvestmentCharts({ investments }: InvestmentChartsProps) {
             color: assetType.color,
           };
         }
-        byType[assetType.id].value += inv.currentValue || 0;
+        byType[assetType.id].value += toBRL(inv);
       }
     });
 
     return Object.values(byType).sort((a, b) => b.value - a.value);
-  }, [investments, assetTypes]);
+  }, [investments, assetTypes, dollarRate]);
 
   // Chart by entity
   const entityChartData = useMemo(() => {
@@ -63,15 +70,15 @@ export function InvestmentCharts({ investments }: InvestmentChartsProps) {
           color: entityColors[entity] || 'hsl(var(--muted))',
         };
       }
-      byEntity[entity].value += inv.currentValue;
+      byEntity[entity].value += toBRL(inv);
     });
 
     return Object.values(byEntity).sort((a, b) => b.value - a.value);
-  }, [investments]);
+  }, [investments, dollarRate]);
 
   const totalValue = useMemo(() => {
-    return investments.reduce((sum, inv) => sum + inv.currentValue, 0);
-  }, [investments]);
+    return investments.reduce((sum, inv) => sum + toBRL(inv), 0);
+  }, [investments, dollarRate]);
 
   const formatValue = (value: number) => {
     return `R$ ${value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
@@ -94,10 +101,7 @@ export function InvestmentCharts({ investments }: InvestmentChartsProps) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Chart by Asset Type */}
       <div className="stat-card animate-fade-in">
-        <h3 className="font-semibold mb-2">Distribuição por Tipo de Ativo</h3>
-        <p className="text-sm text-muted-foreground mb-4">
-          Patrimônio total: <span className="font-mono font-semibold text-foreground">{formatValue(totalValue)}</span>
-        </p>
+        <h3 className="font-semibold mb-4">Distribuição por Tipo de Ativo</h3>
         <div className="h-[280px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
