@@ -111,8 +111,13 @@ export function InvestmentTable({ investments, assetTypes, onEdit, onDelete }: I
                     <>
                       {investment.currency === 'USD' ? '$' : 'R$'} {currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </>
+                  ) : hasInvestedValue ? (
+                    <>
+                      {investment.currency === 'USD' ? '$' : 'R$'} {investment.investedValue!.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      <span className="text-muted-foreground text-xs block">= investido</span>
+                    </>
                   ) : (
-                    <span className="text-muted-foreground text-xs">Aguardando cotação</span>
+                    <span className="text-muted-foreground text-xs">-</span>
                   )}
                 </TableCell>
                 <TableCell className="text-right">

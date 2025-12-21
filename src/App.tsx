@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { InvestmentProvider } from "./contexts/InvestmentContext";
 import { ExpenseProvider } from "./contexts/ExpenseContext";
+import { AssetTypeProvider } from "./contexts/AssetTypeContext";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
 import InvestmentDashboard from "./pages/InvestmentDashboard";
 import InvestmentManagement from "./pages/InvestmentManagement";
@@ -18,23 +19,25 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <InvestmentProvider>
-        <ExpenseProvider>
-          <Toaster />
-          <Sonner />
-          <InstallPrompt />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<InvestmentDashboard />} />
-              <Route path="/investments" element={<InvestmentManagement />} />
-              <Route path="/finances" element={<FinanceDashboard />} />
-              <Route path="/expenses" element={<ExpenseManagement />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </ExpenseProvider>
-      </InvestmentProvider>
+      <AssetTypeProvider>
+        <InvestmentProvider>
+          <ExpenseProvider>
+            <Toaster />
+            <Sonner />
+            <InstallPrompt />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<InvestmentDashboard />} />
+                <Route path="/investments" element={<InvestmentManagement />} />
+                <Route path="/finances" element={<FinanceDashboard />} />
+                <Route path="/expenses" element={<ExpenseManagement />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </BrowserRouter>
+          </ExpenseProvider>
+        </InvestmentProvider>
+      </AssetTypeProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

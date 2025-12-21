@@ -3,8 +3,8 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { PatrimonyCard } from '@/components/dashboard/PatrimonyCard';
 import { AssetTypeCard } from '@/components/dashboard/AssetTypeCard';
 import { InvestmentCharts } from '@/components/dashboard/InvestmentCharts';
-import { assetTypes } from '@/data/mockData';
 import { useInvestments } from '@/contexts/InvestmentContext';
+import { useAssetTypes } from '@/contexts/AssetTypeContext';
 import { useQuotes } from '@/hooks/useQuotes';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +24,7 @@ export default function InvestmentDashboard() {
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
   const [selectedEntity, setSelectedEntity] = useState<InvestmentEntity | 'all'>('all');
   const { investments } = useInvestments();
+  const { assetTypes } = useAssetTypes();
   const { quotes, isLoading, fetchMultipleQuotes } = useQuotes();
   const { toast } = useToast();
 
@@ -104,7 +105,8 @@ export default function InvestmentDashboard() {
       if (assetType.name === 'Criptomoedas') {
         newCurrentValue = inv.quantity * quote.price;
       } else if (assetType.name === 'Ações EUA') {
-        newCurrentValue = inv.quantity * quote.price * dollarRate;
+        // Keep value in USD (quote.price is already in USD)
+        newCurrentValue = inv.quantity * quote.price;
       }
 
       return {
@@ -130,8 +132,19 @@ export default function InvestmentDashboard() {
     return Array.from(entities);
   }, [investments]);
 
-  const totalInvested = filteredInvestments.reduce((sum, inv) => sum + (inv.investedValue || 0), 0);
-  const totalCurrent = filteredInvestments.reduce((sum, inv) => sum + (inv.currentValue || 0), 0);
+  // Get dollar rate for USD to BRL conversion in totals
+  const dollarRateForTotals = quotes['USD']?.price || 5.5;
+  
+  const totalInvested = filteredInvestments.reduce((sum, inv) => {
+    const value = inv.investedValue || 0;
+    return sum + (inv.currency === 'USD' ? value * dollarRateForTotals : value);
+  }, 0);
+  
+  const totalCurrent = filteredInvestments.reduce((sum, inv) => {
+    const value = inv.currentValue || 0;
+    return sum + (inv.currency === 'USD' ? value * dollarRateForTotals : value);
+  }, 0);
+  
   const variation = totalCurrent - totalInvested;
   const variationPercent = totalInvested > 0 ? (variation / totalInvested) * 100 : 0;
 
