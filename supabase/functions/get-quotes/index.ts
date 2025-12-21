@@ -227,6 +227,7 @@ async function getUSStockQuote(ticker: string): Promise<QuoteResponse> {
 
   // Fallback with approximate values for common stocks
   const stockEstimates: Record<string, number> = {
+    // Stocks
     'AAPL': 248,
     'GOOGL': 192,
     'MSFT': 438,
@@ -234,6 +235,16 @@ async function getUSStockQuote(ticker: string): Promise<QuoteResponse> {
     'TSLA': 421,
     'NVDA': 134,
     'META': 585,
+
+    // ETFs comuns (para evitar cair no $100 quando a Alpha Vantage rate-limit)
+    'IVV': 600,
+    'VOO': 570,
+    'SPY': 580,
+    'QQQ': 520,
+    'VTI': 300,
+    'IWM': 215,
+    'DIA': 405,
+    'SCHD': 28,
   };
 
   const estimatedPrice = stockEstimates[ticker.toUpperCase()] || 100;
