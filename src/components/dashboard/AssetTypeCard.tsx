@@ -7,9 +7,10 @@ interface AssetTypeCardProps {
   assetType: AssetType;
   investments: Investment[];
   index: number;
+  dollarRate?: number;
 }
 
-export function AssetTypeCard({ assetType, investments, index }: AssetTypeCardProps) {
+export function AssetTypeCard({ assetType, investments, index, dollarRate = 5.5 }: AssetTypeCardProps) {
   // Detect if all investments in this category are in USD
   const isUsdCategory = investments.length > 0 && investments.every((inv) => inv.currency === 'USD');
   const currencySymbol = isUsdCategory ? '$' : 'R$';
@@ -20,6 +21,10 @@ export function AssetTypeCard({ assetType, investments, index }: AssetTypeCardPr
   const variationPercent = totalInvested > 0 ? (variation / totalInvested) * 100 : 0;
   const isPositive = variation >= 0;
   const hasInvestedData = totalInvested > 0;
+
+  // Calculate BRL equivalents for USD categories
+  const totalCurrentBRL = isUsdCategory ? totalCurrent * dollarRate : totalCurrent;
+  const totalInvestedBRL = isUsdCategory ? totalInvested * dollarRate : totalInvested;
 
   const IconComponent = getIcon(assetType.icon);
 
@@ -47,15 +52,27 @@ export function AssetTypeCard({ assetType, investments, index }: AssetTypeCardPr
           <p className="font-mono text-xl font-semibold">
             {currencySymbol} {totalCurrent.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
           </p>
+          {isUsdCategory && (
+            <p className="font-mono text-sm text-muted-foreground">
+              ≈ R$ {totalCurrentBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Investido</p>
             {hasInvestedData ? (
-              <p className="font-mono text-sm">
-                {currencySymbol} {totalInvested.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              </p>
+              <>
+                <p className="font-mono text-sm">
+                  {currencySymbol} {totalInvested.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </p>
+                {isUsdCategory && (
+                  <p className="font-mono text-xs text-muted-foreground">
+                    ≈ R$ {totalInvestedBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </p>
+                )}
+              </>
             ) : (
               <p className="text-xs text-muted-foreground">Não informado</p>
             )}
@@ -79,17 +96,27 @@ export function AssetTypeCard({ assetType, investments, index }: AssetTypeCardPr
         <div className="space-y-2 max-h-32 overflow-y-auto">
           {investments.map((inv) => {
             const invSymbol = inv.currency === 'USD' ? '$' : 'R$';
+            const valueBRL = inv.currency === 'USD' && inv.currentValue !== undefined 
+              ? inv.currentValue * dollarRate 
+              : null;
             return (
               <div key={inv.id} className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground truncate max-w-[120px]">
+                <span className="text-muted-foreground truncate max-w-[100px]">
                   {inv.ticker || inv.name}
                 </span>
-                <span className="font-mono">
-                  {inv.currentValue !== undefined 
-                    ? `${invSymbol} ${inv.currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
-                    : '-'
-                  }
-                </span>
+                <div className="text-right">
+                  <span className="font-mono">
+                    {inv.currentValue !== undefined 
+                      ? `${invSymbol} ${inv.currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                      : '-'
+                    }
+                  </span>
+                  {valueBRL !== null && (
+                    <span className="font-mono text-xs text-muted-foreground block">
+                      ≈ R$ {valueBRL.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </span>
+                  )}
+                </div>
               </div>
             );
           })}
