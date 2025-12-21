@@ -100,7 +100,7 @@ export default function InvestmentDashboard() {
     return Array.from(entities);
   }, [investments]);
 
-  const totalInvested = filteredInvestments.reduce((sum, inv) => sum + inv.investedValue, 0);
+  const totalInvested = filteredInvestments.reduce((sum, inv) => sum + (inv.investedValue || 0), 0);
   const totalCurrent = filteredInvestments.reduce((sum, inv) => sum + inv.currentValue, 0);
   const variation = totalCurrent - totalInvested;
   const variationPercent = totalInvested > 0 ? (variation / totalInvested) * 100 : 0;
