@@ -243,7 +243,7 @@ export default function InvestmentDashboard() {
         )}
 
         {/* Investment Charts */}
-        <InvestmentCharts investments={filteredInvestments} />
+        <InvestmentCharts investments={filteredInvestments} dollarRate={dollarRateForTotals} />
 
         <div>
           <h2 className="text-xl font-semibold mb-4">Ativos por Categoria</h2>
