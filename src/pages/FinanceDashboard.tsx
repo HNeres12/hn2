@@ -7,10 +7,9 @@ import { InstallmentsList } from '@/components/finance/InstallmentsList';
 import { MonthlyChart } from '@/components/finance/MonthlyChart';
 import { DateRangeFilter } from '@/components/finance/DateRangeFilter';
 import { useExpenses } from '@/contexts/ExpenseContext';
-import { expenseCategories } from '@/data/mockData';
 
 export default function FinanceDashboard() {
-  const { expenses, subscriptions, installments, fixedExpenses } = useExpenses();
+  const { expenses, subscriptions, installments, fixedExpenses, expenseCategories } = useExpenses();
   
   // Default: last 6 months
   const now = new Date();

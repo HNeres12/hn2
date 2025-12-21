@@ -7,10 +7,12 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
+  LogOut,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 const navItems = [
   { path: '/', label: 'Dashboard Investimentos', icon: LayoutDashboard },
@@ -23,6 +25,7 @@ const navItems = [
 export function Sidebar() {
   const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+  const { signOut, user } = useAuth();
 
   return (
     <aside
@@ -73,7 +76,22 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 border-t border-sidebar-border">
+      <div className="p-4 border-t border-sidebar-border space-y-2">
+        {user && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={signOut}
+            className={cn(
+              'w-full text-muted-foreground hover:text-destructive',
+              collapsed ? 'justify-center' : 'justify-start gap-2'
+            )}
+            title={collapsed ? 'Sair' : undefined}
+          >
+            <LogOut className="w-4 h-4" />
+            {!collapsed && <span>Sair</span>}
+          </Button>
+        )}
         <Button
           variant="ghost"
           size="sm"

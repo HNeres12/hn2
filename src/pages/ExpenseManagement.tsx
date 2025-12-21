@@ -3,7 +3,6 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Plus, MoreHorizontal, Pencil, Trash2, Check, X } from 'lucide-react';
 import { useExpenses } from '@/contexts/ExpenseContext';
-import { expenseCategories } from '@/data/mockData';
 import { Expense, Subscription, InstallmentPurchase, FixedExpense } from '@/types/finance';
 import { getIcon } from '@/lib/iconUtils';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -56,7 +55,7 @@ type DialogType = 'expense' | 'subscription' | 'installment' | 'fixed' | null;
 
 export default function ExpenseManagement() {
   const { 
-    expenses, subscriptions, installments, fixedExpenses,
+    expenses, subscriptions, installments, fixedExpenses, expenseCategories,
     addExpense, updateExpense, deleteExpense,
     addSubscription, updateSubscription, deleteSubscription, toggleSubscription,
     addInstallment, updateInstallment, deleteInstallment, payInstallment,
