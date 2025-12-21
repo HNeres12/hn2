@@ -12,24 +12,15 @@ interface AssetTypeCardProps {
 
 type CurrencyView = 'BRL' | 'USD';
 
-function hasUsdHint(inv: Pick<Investment, 'name' | 'ticker'>) {
-  const hint = `${inv.ticker ?? ''} ${inv.name ?? ''}`.toUpperCase();
-  return /\bUSD\b/.test(hint) || hint.includes('DÓLAR') || hint.includes('DOLAR') || hint.includes('US$');
-}
-
 export function AssetTypeCard({ assetType, investments, index, dollarRate = 5.5 }: AssetTypeCardProps) {
-  // Para evitar ficar "pedindo ajuste" em cada novo ativo:
-  // - Se o investimento estiver marcado como USD, tratamos valores como USD e convertemos para BRL.
-  // - Se NÃO estiver marcado como USD, mas o nome/ticker indicar USD (ex: "USD" / "Dólar"),
-  //   exibimos em USD + BRL derivando o USD = BRL / dólar, sem mexer na base do cálculo.
+  // Usa apenas o campo `currency` oficial para determinar a moeda
+  // Não tenta "adivinhar" USD pelo nome/ticker
   const getMoney = (inv: Investment) => {
     const investedRaw = inv.investedValue ?? 0;
     const currentRaw = inv.currentValue ?? 0;
 
     const isDeclaredUsd = inv.currency === 'USD';
-    const isHintedUsd = !isDeclaredUsd && hasUsdHint(inv);
-
-    const view: CurrencyView = isDeclaredUsd || isHintedUsd ? 'USD' : 'BRL';
+    const view: CurrencyView = isDeclaredUsd ? 'USD' : 'BRL';
 
     if (isDeclaredUsd) {
       const investedUSD = investedRaw;
@@ -40,18 +31,6 @@ export function AssetTypeCard({ assetType, investments, index, dollarRate = 5.5 
         currentUSD,
         investedBRL: investedUSD * dollarRate,
         currentBRL: currentUSD * dollarRate,
-      };
-    }
-
-    if (isHintedUsd) {
-      const investedBRL = investedRaw;
-      const currentBRL = currentRaw;
-      return {
-        view,
-        investedUSD: investedBRL / dollarRate,
-        currentUSD: currentBRL / dollarRate,
-        investedBRL,
-        currentBRL,
       };
     }
 

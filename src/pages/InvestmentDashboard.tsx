@@ -62,6 +62,10 @@ export default function InvestmentDashboard() {
       }
 
       // QUALQUER ativo em USD com ticker OU categoria "Ações EUA" busca cotação stock_us
+      // EXCETO se o ticker for "USD" (caixa em dólar, não é ação)
+      const tickerUpper = inv.ticker.toUpperCase();
+      if (tickerUpper === 'USD') return; // Não buscar cotação para ticker "USD" - é dinheiro, não ação
+      
       if (inv.currency === 'USD' || assetType.name === 'Ações EUA') {
         if (!requests.some((r) => r.type === 'stock_us' && r.ticker === inv.ticker)) {
           requests.push({ type: 'stock_us', ticker: inv.ticker });
@@ -110,12 +114,11 @@ export default function InvestmentDashboard() {
       if (!inv.ticker) return inv;
 
       const ticker = inv.ticker.toUpperCase();
-      const key =
-        (inv.currency === 'USD' || assetType.name === 'Ações EUA') && ticker === 'USD'
-          ? 'stock_us:USD'
-          : ticker;
+      
+      // Se ticker é "USD", significa dinheiro em caixa - NÃO buscar cotação de ação
+      if (ticker === 'USD') return inv;
 
-      const quote = quotes[key];
+      const quote = quotes[ticker];
       if (!quote) return inv;
 
       let newCurrentValue = inv.currentValue;
@@ -124,7 +127,7 @@ export default function InvestmentDashboard() {
       if (assetType.name === 'Criptomoedas') {
         newCurrentValue = inv.quantity * quote.price;
       }
-      // QUALQUER ativo em USD com ticker: cotação vem em USD
+      // QUALQUER ativo em USD com ticker (exceto "USD"): cotação vem em USD
       else if (inv.currency === 'USD' || assetType.name === 'Ações EUA') {
         newCurrentValue = inv.quantity * quote.price;
       }
