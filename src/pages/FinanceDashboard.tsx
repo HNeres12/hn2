@@ -25,7 +25,7 @@ export default function FinanceDashboard() {
   // Filter expenses by date range
   const filteredExpenses = useMemo(() => {
     return expenses.filter((exp) => {
-      const expDate = new Date(exp.date);
+      const expDate = new Date(exp.year, exp.month - 1, 1);
       return expDate >= startDate && expDate <= endDate;
     });
   }, [expenses, startDate, endDate]);

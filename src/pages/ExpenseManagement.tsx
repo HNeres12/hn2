@@ -6,6 +6,7 @@ import { useExpenses } from '@/contexts/ExpenseContext';
 import { expenseCategories } from '@/data/mockData';
 import { Expense, Subscription, InstallmentPurchase, FixedExpense } from '@/types/finance';
 import { getIcon } from '@/lib/iconUtils';
+import { Checkbox } from '@/components/ui/checkbox';
 
 import {
   Dialog,
@@ -64,12 +65,16 @@ export default function ExpenseManagement() {
   
   const [dialogType, setDialogType] = useState<DialogType>(null);
   const [editingItem, setEditingItem] = useState<any>(null);
+  const [selectedExpenses, setSelectedExpenses] = useState<Set<string>>(new Set());
   const { toast } = useToast();
+
+  const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
 
   // Form states
   const [expenseForm, setExpenseForm] = useState({
     categoryId: '', name: '', value: '', paymentMethod: 'card' as Expense['paymentMethod'],
-    date: new Date().toISOString().split('T')[0], notes: '',
+    month: currentMonth.toString(), year: currentYear.toString(), notes: '',
   });
 
   const [subscriptionForm, setSubscriptionForm] = useState({
@@ -86,7 +91,7 @@ export default function ExpenseManagement() {
   });
 
   const resetForms = () => {
-    setExpenseForm({ categoryId: '', name: '', value: '', paymentMethod: 'card', date: new Date().toISOString().split('T')[0], notes: '' });
+    setExpenseForm({ categoryId: '', name: '', value: '', paymentMethod: 'card', month: currentMonth.toString(), year: currentYear.toString(), notes: '' });
     setSubscriptionForm({ name: '', value: '', billingDay: '1', categoryId: '2', active: true });
     setInstallmentForm({ name: '', totalValue: '', totalInstallments: '', paidInstallments: '0', startDate: new Date().toISOString().split('T')[0], categoryId: '1' });
     setFixedForm({ name: '', value: '', dueDay: '5', categoryId: '1', active: true });
@@ -101,7 +106,7 @@ export default function ExpenseManagement() {
       if (type === 'expense') {
         setExpenseForm({
           categoryId: item.categoryId, name: item.name, value: item.value.toString(),
-          paymentMethod: item.paymentMethod, date: item.date.toISOString().split('T')[0], notes: item.notes || '',
+          paymentMethod: item.paymentMethod, month: item.month.toString(), year: item.year.toString(), notes: item.notes || '',
         });
       } else if (type === 'subscription') {
         setSubscriptionForm({
@@ -130,7 +135,7 @@ export default function ExpenseManagement() {
     const newExpense: Expense = {
       id: editingItem?.id || Date.now().toString(),
       categoryId: expenseForm.categoryId, name: expenseForm.name, value: parseFloat(expenseForm.value),
-      paymentMethod: expenseForm.paymentMethod, date: new Date(expenseForm.date), notes: expenseForm.notes || undefined,
+      paymentMethod: expenseForm.paymentMethod, month: parseInt(expenseForm.month), year: parseInt(expenseForm.year), notes: expenseForm.notes || undefined,
     };
     if (editingItem) {
       updateExpense(editingItem.id, newExpense);
@@ -231,7 +236,24 @@ export default function ExpenseManagement() {
 
           {/* DESPESAS */}
           <TabsContent value="expenses" className="space-y-4">
-            <div className="flex justify-end">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                {selectedExpenses.size > 0 && (
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => {
+                      selectedExpenses.forEach(id => deleteExpense(id));
+                      setSelectedExpenses(new Set());
+                      toast({ title: `${selectedExpenses.size} despesa(s) excluída(s)!` });
+                    }}
+                    className="gap-2"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                    Excluir {selectedExpenses.size} selecionada(s)
+                  </Button>
+                )}
+              </div>
               <Button onClick={() => handleOpenDialog('expense')} className="gap-2">
                 <Plus className="w-4 h-4" /> Nova Despesa
               </Button>
@@ -240,11 +262,23 @@ export default function ExpenseManagement() {
               <Table>
                 <TableHeader>
                   <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="w-12">
+                      <Checkbox 
+                        checked={expenses.length > 0 && selectedExpenses.size === expenses.length}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedExpenses(new Set(expenses.map(e => e.id)));
+                          } else {
+                            setSelectedExpenses(new Set());
+                          }
+                        }}
+                      />
+                    </TableHead>
                     <TableHead>Descrição</TableHead>
                     <TableHead>Categoria</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
                     <TableHead>Pagamento</TableHead>
-                    <TableHead>Data</TableHead>
+                    <TableHead>Competência</TableHead>
                     <TableHead className="w-12"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -252,8 +286,23 @@ export default function ExpenseManagement() {
                   {expenses.map((expense) => {
                     const category = getCategory(expense.categoryId);
                     const IconComponent = category ? getIcon(category.icon) : getIcon('Circle');
+                    const isSelected = selectedExpenses.has(expense.id);
                     return (
-                      <TableRow key={expense.id} className="border-border">
+                      <TableRow key={expense.id} className={`border-border ${isSelected ? 'bg-muted/50' : ''}`}>
+                        <TableCell>
+                          <Checkbox 
+                            checked={isSelected}
+                            onCheckedChange={(checked) => {
+                              const newSelected = new Set(selectedExpenses);
+                              if (checked) {
+                                newSelected.add(expense.id);
+                              } else {
+                                newSelected.delete(expense.id);
+                              }
+                              setSelectedExpenses(newSelected);
+                            }}
+                          />
+                        </TableCell>
                         <TableCell className="font-medium">{expense.name}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -265,13 +314,13 @@ export default function ExpenseManagement() {
                         </TableCell>
                         <TableCell className="text-right font-mono">R$ {expense.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
                         <TableCell><span className="px-2 py-1 rounded-md bg-secondary text-xs">{paymentMethods.find((p) => p.value === expense.paymentMethod)?.label}</span></TableCell>
-                        <TableCell className="text-muted-foreground">{expense.date.toLocaleDateString('pt-BR')}</TableCell>
+                        <TableCell className="text-muted-foreground">{String(expense.month).padStart(2, '0')}/{expense.year}</TableCell>
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="w-4 h-4" /></Button></DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuItem onClick={() => handleOpenDialog('expense', expense)}><Pencil className="w-4 h-4 mr-2" />Editar</DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => { deleteExpense(expense.id); toast({ title: 'Despesa excluída!' }); }} className="text-destructive focus:text-destructive"><Trash2 className="w-4 h-4 mr-2" />Excluir</DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => { deleteExpense(expense.id); setSelectedExpenses(prev => { const n = new Set(prev); n.delete(expense.id); return n; }); toast({ title: 'Despesa excluída!' }); }} className="text-destructive focus:text-destructive"><Trash2 className="w-4 h-4 mr-2" />Excluir</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
@@ -445,8 +494,28 @@ export default function ExpenseManagement() {
                   </Select>
                 </div>
                 <div className="grid gap-2">
-                  <Label>Data</Label>
-                  <Input type="date" value={expenseForm.date} onChange={(e) => setExpenseForm({ ...expenseForm, date: e.target.value })} />
+                  <Label>Mês</Label>
+                  <Select value={expenseForm.month} onValueChange={(value) => setExpenseForm({ ...expenseForm, month: value })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {[...Array(12)].map((_, i) => (
+                        <SelectItem key={i + 1} value={(i + 1).toString()}>
+                          {new Date(2024, i, 1).toLocaleDateString('pt-BR', { month: 'long' })}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="grid gap-2">
+                  <Label>Ano</Label>
+                  <Select value={expenseForm.year} onValueChange={(value) => setExpenseForm({ ...expenseForm, year: value })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {[2023, 2024, 2025, 2026].map((y) => (
+                        <SelectItem key={y} value={y.toString()}>{y}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>

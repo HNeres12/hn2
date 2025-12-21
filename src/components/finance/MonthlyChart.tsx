@@ -34,8 +34,7 @@ export function MonthlyChart({ expenses, subscriptions, installments, fixedExpen
       
       // Filter expenses for this month
       const monthExpenses = expenses.filter((exp) => {
-        const expDate = new Date(exp.date);
-        return expDate.getMonth() === date.getMonth() && expDate.getFullYear() === date.getFullYear();
+        return exp.month === (date.getMonth() + 1) && exp.year === date.getFullYear();
       });
 
       const totalExpenses = monthExpenses.reduce((sum, exp) => sum + exp.value, 0);

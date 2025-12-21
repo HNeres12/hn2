@@ -44,7 +44,8 @@ export interface Expense {
   name: string;
   value: number;
   paymentMethod: 'card' | 'debit' | 'cash' | 'pix';
-  date: Date;
+  month: number; // 1-12
+  year: number;
   notes?: string;
 }
 
