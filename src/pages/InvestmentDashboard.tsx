@@ -54,9 +54,12 @@ export default function InvestmentDashboard() {
       if (assetType.name === 'Criptomoedas') {
         requests.push({ type: 'crypto', ticker: inv.ticker });
       }
-      // Ações EUA
-      else if (assetType.name === 'Ações EUA') {
-        requests.push({ type: 'stock_us', ticker: inv.ticker });
+      // Ações EUA ou qualquer ativo em USD com ticker (ETFs, etc.)
+      else if (assetType.name === 'Ações EUA' || inv.currency === 'USD') {
+        // Evitar duplicatas
+        if (!requests.some((r) => r.type === 'stock_us' && r.ticker === inv.ticker)) {
+          requests.push({ type: 'stock_us', ticker: inv.ticker });
+        }
       }
     });
 
@@ -104,7 +107,7 @@ export default function InvestmentDashboard() {
 
       if (assetType.name === 'Criptomoedas') {
         newCurrentValue = inv.quantity * quote.price;
-      } else if (assetType.name === 'Ações EUA') {
+      } else if (assetType.name === 'Ações EUA' || inv.currency === 'USD') {
         // Keep value in USD (quote.price is already in USD)
         newCurrentValue = inv.quantity * quote.price;
       }
