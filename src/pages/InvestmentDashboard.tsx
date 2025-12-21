@@ -251,6 +251,7 @@ export default function InvestmentDashboard() {
                 assetType={type}
                 investments={type.investments}
                 index={index}
+                dollarRate={dollarRateForTotals}
               />
             ))}
           </div>
