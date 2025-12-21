@@ -42,14 +42,7 @@ export function PatrimonyCard({
         </Button>
       </div>
 
-      <div className="flex items-center gap-6">
-        <div>
-          <p className="text-muted-foreground text-xs mb-1">Total Investido</p>
-          <p className="font-mono text-lg">
-            R$ {totalInvested.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-          </p>
-        </div>
-        <div className="h-10 w-px bg-border" />
+      <div className="flex items-center">
         <div>
           <p className="text-muted-foreground text-xs mb-1">Variação</p>
           <div className="flex items-center gap-2">
