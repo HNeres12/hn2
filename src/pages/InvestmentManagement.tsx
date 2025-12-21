@@ -3,8 +3,8 @@ import { MainLayout } from '@/components/layout/MainLayout';
 import { InvestmentTable } from '@/components/dashboard/InvestmentTable';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
-import { assetTypes } from '@/data/mockData';
 import { useInvestments } from '@/contexts/InvestmentContext';
+import { useAssetTypes } from '@/contexts/AssetTypeContext';
 import { Investment, investmentEntities, InvestmentEntity } from '@/types/finance';
 import {
   Dialog,
@@ -25,9 +25,11 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { AssetTypeManager } from '@/components/investment/AssetTypeManager';
 
 export default function InvestmentManagement() {
   const { investments, addInvestment, updateInvestment, deleteInvestment } = useInvestments();
+  const { assetTypes } = useAssetTypes();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingInvestment, setEditingInvestment] = useState<Investment | null>(null);
   const { toast } = useToast();
@@ -140,6 +142,8 @@ export default function InvestmentManagement() {
             Novo Investimento
           </Button>
         </div>
+
+        <AssetTypeManager />
 
         <InvestmentTable
           investments={investments}
