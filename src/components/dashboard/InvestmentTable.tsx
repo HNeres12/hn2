@@ -43,6 +43,7 @@ export function InvestmentTable({ investments, assetTypes, onEdit, onDelete }: I
             <TableHead className="text-muted-foreground">Ativo</TableHead>
             <TableHead className="text-muted-foreground">Tipo</TableHead>
             <TableHead className="text-muted-foreground">Entidade</TableHead>
+            <TableHead className="text-muted-foreground">Corretora</TableHead>
             <TableHead className="text-muted-foreground text-right">Quantidade</TableHead>
             <TableHead className="text-muted-foreground text-right">Investido</TableHead>
             <TableHead className="text-muted-foreground text-right">Valor Atual</TableHead>
@@ -52,9 +53,12 @@ export function InvestmentTable({ investments, assetTypes, onEdit, onDelete }: I
         </TableHeader>
         <TableBody>
           {investments.map((investment) => {
-            const variation = investment.currentValue - investment.investedValue;
-            const variationPercent = (variation / investment.investedValue) * 100;
-            const isPositive = variation >= 0;
+            const hasInvestedValue = investment.investedValue !== undefined && investment.investedValue > 0;
+            const variation = hasInvestedValue ? investment.currentValue - investment.investedValue : null;
+            const variationPercent = hasInvestedValue && investment.investedValue 
+              ? (variation! / investment.investedValue) * 100 
+              : null;
+            const isPositive = variation !== null ? variation >= 0 : true;
             const entityLabel = getEntityLabel(investment.entity);
 
             return (
@@ -79,26 +83,45 @@ export function InvestmentTable({ investments, assetTypes, onEdit, onDelete }: I
                     <span className="text-muted-foreground text-xs">-</span>
                   )}
                 </TableCell>
+                <TableCell>
+                  {investment.broker ? (
+                    <Badge variant="secondary" className="text-xs">
+                      {investment.broker}
+                    </Badge>
+                  ) : (
+                    <span className="text-muted-foreground text-xs">-</span>
+                  )}
+                </TableCell>
                 <TableCell className="text-right font-mono">
                   {investment.quantity.toLocaleString('pt-BR', { maximumFractionDigits: 8 })}
                 </TableCell>
                 <TableCell className="text-right font-mono">
-                  {investment.currency === 'USD' ? '$' : 'R$'} {investment.investedValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  {hasInvestedValue ? (
+                    <>
+                      {investment.currency === 'USD' ? '$' : 'R$'} {investment.investedValue!.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground text-xs">Não informado</span>
+                  )}
                 </TableCell>
                 <TableCell className="text-right font-mono font-semibold">
                   {investment.currency === 'USD' ? '$' : 'R$'} {investment.currentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    {isPositive ? (
-                      <TrendingUp className="w-4 h-4 text-success" />
-                    ) : (
-                      <TrendingDown className="w-4 h-4 text-destructive" />
-                    )}
-                    <span className={cn('font-mono', isPositive ? 'number-positive' : 'number-negative')}>
-                      {isPositive ? '+' : ''}{variationPercent.toFixed(2)}%
-                    </span>
-                  </div>
+                  {variationPercent !== null ? (
+                    <div className="flex items-center justify-end gap-1">
+                      {isPositive ? (
+                        <TrendingUp className="w-4 h-4 text-success" />
+                      ) : (
+                        <TrendingDown className="w-4 h-4 text-destructive" />
+                      )}
+                      <span className={cn('font-mono', isPositive ? 'number-positive' : 'number-negative')}>
+                        {isPositive ? '+' : ''}{variationPercent.toFixed(2)}%
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground text-xs">-</span>
+                  )}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>

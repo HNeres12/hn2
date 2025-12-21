@@ -41,6 +41,7 @@ export default function InvestmentManagement() {
     currentValue: '',
     currency: 'BRL' as 'BRL' | 'USD',
     entity: '' as InvestmentEntity | '',
+    broker: '',
     notes: '',
   });
 
@@ -54,6 +55,7 @@ export default function InvestmentManagement() {
       currentValue: '',
       currency: 'BRL',
       entity: '',
+      broker: '',
       notes: '',
     });
     setEditingInvestment(null);
@@ -67,10 +69,11 @@ export default function InvestmentManagement() {
         name: investment.name,
         ticker: investment.ticker || '',
         quantity: investment.quantity.toString(),
-        investedValue: investment.investedValue.toString(),
+        investedValue: investment.investedValue?.toString() || '',
         currentValue: investment.currentValue.toString(),
         currency: investment.currency,
         entity: investment.entity || '',
+        broker: investment.broker || '',
         notes: investment.notes || '',
       });
     } else {
@@ -80,7 +83,7 @@ export default function InvestmentManagement() {
   };
 
   const handleSave = () => {
-    if (!formData.assetTypeId || !formData.name || !formData.quantity || !formData.investedValue) {
+    if (!formData.assetTypeId || !formData.name || !formData.quantity || !formData.currentValue) {
       toast({
         title: 'Erro',
         description: 'Preencha todos os campos obrigatórios',
@@ -95,10 +98,11 @@ export default function InvestmentManagement() {
       name: formData.name,
       ticker: formData.ticker || undefined,
       quantity: parseFloat(formData.quantity),
-      investedValue: parseFloat(formData.investedValue),
-      currentValue: parseFloat(formData.currentValue) || parseFloat(formData.investedValue),
+      investedValue: formData.investedValue ? parseFloat(formData.investedValue) : undefined,
+      currentValue: parseFloat(formData.currentValue),
       currency: formData.currency,
       entity: formData.entity || undefined,
+      broker: formData.broker || undefined,
       notes: formData.notes || undefined,
       createdAt: editingInvestment?.createdAt || new Date(),
       updatedAt: new Date(),
@@ -225,39 +229,53 @@ export default function InvestmentManagement() {
               </div>
             </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="entity">Entidade</Label>
-              <Select
-                value={formData.entity}
-                onValueChange={(value: InvestmentEntity) => setFormData({ ...formData, entity: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecione a entidade" />
-                </SelectTrigger>
-                <SelectContent>
-                  {investmentEntities.map((ent) => (
-                    <SelectItem key={ent.value} value={ent.value}>
-                      {ent.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="entity">Entidade</Label>
+                <Select
+                  value={formData.entity}
+                  onValueChange={(value: InvestmentEntity) => setFormData({ ...formData, entity: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione a entidade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {investmentEntities.map((ent) => (
+                      <SelectItem key={ent.value} value={ent.value}>
+                        {ent.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="broker">Corretora/Local</Label>
+                <Input
+                  id="broker"
+                  value={formData.broker}
+                  onChange={(e) => setFormData({ ...formData, broker: e.target.value })}
+                  placeholder="Ex: XP, Inter, Binance"
+                />
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="investedValue">Valor Investido *</Label>
+                  <Label htmlFor="investedValue">Valor Investido</Label>
                   <Input
                     id="investedValue"
                     type="number"
                     step="0.01"
                     value={formData.investedValue}
                     onChange={(e) => setFormData({ ...formData, investedValue: e.target.value })}
-                    placeholder="0.00"
+                    placeholder="Deixe vazio se não souber"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Opcional - se não informar, variação será calculada a partir do cadastro
+                  </p>
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="currentValue">Valor Atual</Label>
+                  <Label htmlFor="currentValue">Valor Atual *</Label>
                   <Input
                     id="currentValue"
                     type="number"

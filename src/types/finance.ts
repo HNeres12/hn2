@@ -21,10 +21,11 @@ export interface Investment {
   name: string;
   ticker?: string;
   quantity: number;
-  investedValue: number;
+  investedValue?: number; // Opcional para investimentos antigos sem valor conhecido
   currentValue: number;
   currency: 'BRL' | 'USD';
   entity?: InvestmentEntity;
+  broker?: string; // Corretora/local onde o ativo está investido
   notes?: string;
   createdAt: Date;
   updatedAt: Date;

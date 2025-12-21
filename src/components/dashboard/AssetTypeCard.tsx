@@ -10,11 +10,12 @@ interface AssetTypeCardProps {
 }
 
 export function AssetTypeCard({ assetType, investments, index }: AssetTypeCardProps) {
-  const totalInvested = investments.reduce((sum, inv) => sum + inv.investedValue, 0);
+  const totalInvested = investments.reduce((sum, inv) => sum + (inv.investedValue || 0), 0);
   const totalCurrent = investments.reduce((sum, inv) => sum + inv.currentValue, 0);
   const variation = totalCurrent - totalInvested;
   const variationPercent = totalInvested > 0 ? (variation / totalInvested) * 100 : 0;
   const isPositive = variation >= 0;
+  const hasInvestedData = totalInvested > 0;
 
   const IconComponent = getIcon(assetType.icon);
 
@@ -47,20 +48,26 @@ export function AssetTypeCard({ assetType, investments, index }: AssetTypeCardPr
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs text-muted-foreground">Investido</p>
-            <p className="font-mono text-sm">
-              R$ {totalInvested.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </p>
-          </div>
-          <div className="flex items-center gap-1">
-            {isPositive ? (
-              <TrendingUp className="w-4 h-4 text-success" />
+            {hasInvestedData ? (
+              <p className="font-mono text-sm">
+                R$ {totalInvested.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
             ) : (
-              <TrendingDown className="w-4 h-4 text-destructive" />
+              <p className="text-xs text-muted-foreground">Não informado</p>
             )}
-            <span className={cn('font-mono text-sm', isPositive ? 'number-positive' : 'number-negative')}>
-              {isPositive ? '+' : ''}{variationPercent.toFixed(2)}%
-            </span>
           </div>
+          {hasInvestedData && (
+            <div className="flex items-center gap-1">
+              {isPositive ? (
+                <TrendingUp className="w-4 h-4 text-success" />
+              ) : (
+                <TrendingDown className="w-4 h-4 text-destructive" />
+              )}
+              <span className={cn('font-mono text-sm', isPositive ? 'number-positive' : 'number-negative')}>
+                {isPositive ? '+' : ''}{variationPercent.toFixed(2)}%
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
