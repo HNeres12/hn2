@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Clock } from 'lucide-react';
 import { investmentEntities, InvestmentEntity } from '@/types/finance';
+import { isSelicLinkedInvestment, estimateSelicCurrentValue } from '@/lib/investmentValuation';
 import {
   Select,
   SelectContent,
@@ -29,13 +30,24 @@ export default function InvestmentDashboard() {
   // Map asset type IDs to quote types
   const getQuoteRequestsForInvestments = () => {
     const requests: Array<{ type: 'crypto' | 'stock_us' | 'treasury' | 'dollar'; ticker?: string }> = [];
-    
+
     // Always fetch dollar for USD conversions
     requests.push({ type: 'dollar' });
 
     investments.forEach((inv) => {
       const assetType = assetTypes.find((t) => t.id === inv.assetTypeId);
-      if (!assetType || !inv.ticker) return;
+      if (!assetType) return;
+
+      // Renda Fixa (Tesouro) — não depende de ticker
+      if (assetType.name === 'Renda Fixa') {
+        if (!requests.some((r) => r.type === 'treasury')) {
+          requests.push({ type: 'treasury' });
+        }
+        return;
+      }
+
+      // Demais categorias dependem de ticker
+      if (!inv.ticker) return;
 
       // Criptomoedas
       if (assetType.name === 'Criptomoedas') {
@@ -45,12 +57,6 @@ export default function InvestmentDashboard() {
       else if (assetType.name === 'Ações EUA') {
         requests.push({ type: 'stock_us', ticker: inv.ticker });
       }
-      // Renda Fixa (Tesouro)
-      else if (assetType.name === 'Renda Fixa') {
-        if (!requests.some((r) => r.type === 'treasury')) {
-          requests.push({ type: 'treasury' });
-        }
-      }
     });
 
     return requests;
@@ -59,16 +65,38 @@ export default function InvestmentDashboard() {
   // Update investment values based on quotes
   const updatedInvestments = useMemo(() => {
     const dollarRate = quotes['USD']?.price || 5.5;
+    const selicRate = quotes['SELIC']?.price;
 
     return investments.map((inv) => {
       const assetType = assetTypes.find((t) => t.id === inv.assetTypeId);
-      
-      // Se não tem ticker, mantém o valor atual salvo
-      if (!assetType || !inv.ticker) return inv;
+      if (!assetType) return inv;
+
+      // Renda Fixa (Tesouro Selic): estima valor atual pelo SELIC
+      if (
+        assetType.name === 'Renda Fixa' &&
+        selicRate !== undefined &&
+        inv.investedValue !== undefined &&
+        inv.investedValue > 0 &&
+        isSelicLinkedInvestment(inv)
+      ) {
+        const createdAt = inv.createdAt instanceof Date ? inv.createdAt : new Date(inv.createdAt);
+        const newCurrentValue = estimateSelicCurrentValue({
+          investedValue: inv.investedValue,
+          createdAt,
+          selicRateAnnualPercent: selicRate,
+        });
+
+        return {
+          ...inv,
+          currentValue: newCurrentValue,
+          updatedAt: new Date(),
+        };
+      }
+
+      // Demais categorias dependem de ticker e cotação
+      if (!inv.ticker) return inv;
 
       const quote = quotes[inv.ticker.toUpperCase()];
-      
-      // Se não tem cotação, mantém o valor atual salvo
       if (!quote) return inv;
 
       let newCurrentValue = inv.currentValue;

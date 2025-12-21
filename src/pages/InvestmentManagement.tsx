@@ -70,7 +70,7 @@ export default function InvestmentManagement() {
         ticker: investment.ticker || '',
         quantity: investment.quantity.toString(),
         investedValue: investment.investedValue?.toString() || '',
-        currentValue: investment.currentValue.toString(),
+        currentValue: investment.currentValue?.toString() || '',
         currency: investment.currency,
         entity: investment.entity || '',
         broker: investment.broker || '',
