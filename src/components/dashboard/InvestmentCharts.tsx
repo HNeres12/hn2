@@ -8,13 +8,15 @@ import {
   Legend,
 } from 'recharts';
 import { Investment, investmentEntities } from '@/types/finance';
-import { assetTypes } from '@/data/mockData';
+import { useAssetTypes } from '@/contexts/AssetTypeContext';
 
 interface InvestmentChartsProps {
   investments: Investment[];
 }
 
 export function InvestmentCharts({ investments }: InvestmentChartsProps) {
+  const { assetTypes } = useAssetTypes();
+
   // Chart by asset type
   const typeChartData = useMemo(() => {
     const byType: Record<string, { name: string; value: number; color: string }> = {};
@@ -29,12 +31,12 @@ export function InvestmentCharts({ investments }: InvestmentChartsProps) {
             color: assetType.color,
           };
         }
-        byType[assetType.id].value += inv.currentValue;
+        byType[assetType.id].value += inv.currentValue || 0;
       }
     });
 
     return Object.values(byType).sort((a, b) => b.value - a.value);
-  }, [investments]);
+  }, [investments, assetTypes]);
 
   // Chart by entity
   const entityChartData = useMemo(() => {
@@ -118,6 +120,7 @@ export function InvestmentCharts({ investments }: InvestmentChartsProps) {
                   backgroundColor: 'hsl(var(--card))',
                   border: '1px solid hsl(var(--border))',
                   borderRadius: '8px',
+                  color: 'hsl(var(--foreground))',
                 }}
               />
               <Legend
@@ -163,6 +166,7 @@ export function InvestmentCharts({ investments }: InvestmentChartsProps) {
                     backgroundColor: 'hsl(var(--card))',
                     border: '1px solid hsl(var(--border))',
                     borderRadius: '8px',
+                    color: 'hsl(var(--foreground))',
                   }}
                 />
                 <Legend
