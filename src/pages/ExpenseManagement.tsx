@@ -126,91 +126,122 @@ export default function ExpenseManagement() {
     }
   };
 
-  const handleSaveExpense = () => {
+  const handleSaveExpense = async () => {
     if (!expenseForm.categoryId || !expenseForm.name || !expenseForm.value) {
       toast({ title: 'Erro', description: 'Preencha todos os campos obrigatórios', variant: 'destructive' });
       return;
     }
-    const newExpense: Expense = {
-      id: editingItem?.id || Date.now().toString(),
-      categoryId: expenseForm.categoryId, name: expenseForm.name, value: parseFloat(expenseForm.value),
-      paymentMethod: expenseForm.paymentMethod, month: parseInt(expenseForm.month), year: parseInt(expenseForm.year), notes: expenseForm.notes || undefined,
-    };
-    if (editingItem) {
-      updateExpense(editingItem.id, newExpense);
-      toast({ title: 'Despesa atualizada!' });
-    } else {
-      addExpense(newExpense);
-      toast({ title: 'Despesa cadastrada!' });
+    try {
+      const expenseData = {
+        categoryId: expenseForm.categoryId, 
+        name: expenseForm.name, 
+        value: parseFloat(expenseForm.value),
+        paymentMethod: expenseForm.paymentMethod, 
+        month: parseInt(expenseForm.month), 
+        year: parseInt(expenseForm.year), 
+        notes: expenseForm.notes || undefined,
+      };
+      if (editingItem) {
+        await updateExpense(editingItem.id, expenseData);
+        toast({ title: 'Despesa atualizada!' });
+      } else {
+        await addExpense(expenseData);
+        toast({ title: 'Despesa cadastrada!' });
+      }
+      setDialogType(null);
+      resetForms();
+    } catch (error) {
+      console.error('Erro ao salvar despesa:', error);
+      toast({ title: 'Erro', description: 'Não foi possível salvar a despesa. Tente novamente.', variant: 'destructive' });
     }
-    setDialogType(null);
-    resetForms();
   };
 
-  const handleSaveSubscription = () => {
+  const handleSaveSubscription = async () => {
     if (!subscriptionForm.name || !subscriptionForm.value) {
       toast({ title: 'Erro', description: 'Preencha todos os campos obrigatórios', variant: 'destructive' });
       return;
     }
-    const newSub: Subscription = {
-      id: editingItem?.id || Date.now().toString(),
-      name: subscriptionForm.name, value: parseFloat(subscriptionForm.value),
-      billingDay: parseInt(subscriptionForm.billingDay), categoryId: subscriptionForm.categoryId, active: subscriptionForm.active,
-    };
-    if (editingItem) {
-      updateSubscription(editingItem.id, newSub);
-      toast({ title: 'Assinatura atualizada!' });
-    } else {
-      addSubscription(newSub);
-      toast({ title: 'Assinatura cadastrada!' });
+    try {
+      const subData = {
+        name: subscriptionForm.name, 
+        value: parseFloat(subscriptionForm.value),
+        billingDay: parseInt(subscriptionForm.billingDay), 
+        categoryId: subscriptionForm.categoryId, 
+        active: subscriptionForm.active,
+      };
+      if (editingItem) {
+        await updateSubscription(editingItem.id, subData);
+        toast({ title: 'Assinatura atualizada!' });
+      } else {
+        await addSubscription(subData);
+        toast({ title: 'Assinatura cadastrada!' });
+      }
+      setDialogType(null);
+      resetForms();
+    } catch (error) {
+      console.error('Erro ao salvar assinatura:', error);
+      toast({ title: 'Erro', description: 'Não foi possível salvar a assinatura. Tente novamente.', variant: 'destructive' });
     }
-    setDialogType(null);
-    resetForms();
   };
 
-  const handleSaveInstallment = () => {
+  const handleSaveInstallment = async () => {
     if (!installmentForm.name || !installmentForm.totalValue || !installmentForm.totalInstallments) {
       toast({ title: 'Erro', description: 'Preencha todos os campos obrigatórios', variant: 'destructive' });
       return;
     }
-    const totalValue = parseFloat(installmentForm.totalValue);
-    const totalInstallments = parseInt(installmentForm.totalInstallments);
-    const newInst: InstallmentPurchase = {
-      id: editingItem?.id || Date.now().toString(),
-      name: installmentForm.name, totalValue, installmentValue: totalValue / totalInstallments,
-      totalInstallments, paidInstallments: parseInt(installmentForm.paidInstallments),
-      startDate: new Date(installmentForm.startDate), categoryId: installmentForm.categoryId,
-    };
-    if (editingItem) {
-      updateInstallment(editingItem.id, newInst);
-      toast({ title: 'Compra parcelada atualizada!' });
-    } else {
-      addInstallment(newInst);
-      toast({ title: 'Compra parcelada cadastrada!' });
+    try {
+      const totalValue = parseFloat(installmentForm.totalValue);
+      const totalInstallments = parseInt(installmentForm.totalInstallments);
+      const instData = {
+        name: installmentForm.name, 
+        totalValue, 
+        installmentValue: totalValue / totalInstallments,
+        totalInstallments, 
+        paidInstallments: parseInt(installmentForm.paidInstallments),
+        startDate: new Date(installmentForm.startDate), 
+        categoryId: installmentForm.categoryId,
+      };
+      if (editingItem) {
+        await updateInstallment(editingItem.id, instData);
+        toast({ title: 'Compra parcelada atualizada!' });
+      } else {
+        await addInstallment(instData);
+        toast({ title: 'Compra parcelada cadastrada!' });
+      }
+      setDialogType(null);
+      resetForms();
+    } catch (error) {
+      console.error('Erro ao salvar parcelamento:', error);
+      toast({ title: 'Erro', description: 'Não foi possível salvar o parcelamento. Tente novamente.', variant: 'destructive' });
     }
-    setDialogType(null);
-    resetForms();
   };
 
-  const handleSaveFixed = () => {
+  const handleSaveFixed = async () => {
     if (!fixedForm.name || !fixedForm.value) {
       toast({ title: 'Erro', description: 'Preencha todos os campos obrigatórios', variant: 'destructive' });
       return;
     }
-    const newFixed: FixedExpense = {
-      id: editingItem?.id || Date.now().toString(),
-      name: fixedForm.name, value: parseFloat(fixedForm.value),
-      dueDay: parseInt(fixedForm.dueDay), categoryId: fixedForm.categoryId, active: fixedForm.active,
-    };
-    if (editingItem) {
-      updateFixedExpense(editingItem.id, newFixed);
-      toast({ title: 'Despesa fixa atualizada!' });
-    } else {
-      addFixedExpense(newFixed);
-      toast({ title: 'Despesa fixa cadastrada!' });
+    try {
+      const fixedData = {
+        name: fixedForm.name, 
+        value: parseFloat(fixedForm.value),
+        dueDay: parseInt(fixedForm.dueDay), 
+        categoryId: fixedForm.categoryId, 
+        active: fixedForm.active,
+      };
+      if (editingItem) {
+        await updateFixedExpense(editingItem.id, fixedData);
+        toast({ title: 'Despesa fixa atualizada!' });
+      } else {
+        await addFixedExpense(fixedData);
+        toast({ title: 'Despesa fixa cadastrada!' });
+      }
+      setDialogType(null);
+      resetForms();
+    } catch (error) {
+      console.error('Erro ao salvar despesa fixa:', error);
+      toast({ title: 'Erro', description: 'Não foi possível salvar a despesa fixa. Tente novamente.', variant: 'destructive' });
     }
-    setDialogType(null);
-    resetForms();
   };
 
   const getCategory = (id: string) => expenseCategories.find((c) => c.id === id);
