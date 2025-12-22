@@ -77,23 +77,23 @@ export default function ExpenseManagement() {
   });
 
   const [subscriptionForm, setSubscriptionForm] = useState({
-    name: '', value: '', billingDay: '1', categoryId: '2', active: true,
+    name: '', value: '', billingDay: '1', categoryId: '', active: true,
   });
 
   const [installmentForm, setInstallmentForm] = useState({
     name: '', totalValue: '', totalInstallments: '', paidInstallments: '0',
-    startDate: new Date().toISOString().split('T')[0], categoryId: '1',
+    startDate: new Date().toISOString().split('T')[0], categoryId: '',
   });
 
   const [fixedForm, setFixedForm] = useState({
-    name: '', value: '', dueDay: '5', categoryId: '1', active: true,
+    name: '', value: '', dueDay: '5', categoryId: '', active: true,
   });
 
   const resetForms = () => {
     setExpenseForm({ categoryId: '', name: '', value: '', paymentMethod: 'card', month: currentMonth.toString(), year: currentYear.toString(), notes: '' });
-    setSubscriptionForm({ name: '', value: '', billingDay: '1', categoryId: '2', active: true });
-    setInstallmentForm({ name: '', totalValue: '', totalInstallments: '', paidInstallments: '0', startDate: new Date().toISOString().split('T')[0], categoryId: '1' });
-    setFixedForm({ name: '', value: '', dueDay: '5', categoryId: '1', active: true });
+    setSubscriptionForm({ name: '', value: '', billingDay: '1', categoryId: '', active: true });
+    setInstallmentForm({ name: '', totalValue: '', totalInstallments: '', paidInstallments: '0', startDate: new Date().toISOString().split('T')[0], categoryId: '' });
+    setFixedForm({ name: '', value: '', dueDay: '5', categoryId: '', active: true });
     setEditingItem(null);
   };
 
