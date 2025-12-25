@@ -33,10 +33,16 @@ export default function FinanceDashboard() {
     });
   }, [expenses, startDate, endDate]);
 
+  // Calculate number of months in range
+  const monthsInRange = useMemo(() => {
+    const startYear = startDate.getFullYear();
+    const startMonth = startDate.getMonth();
+    const endYear = endDate.getFullYear();
+    const endMonth = endDate.getMonth();
+    return (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
+  }, [startDate, endDate]);
+
   const totalExpenses = filteredExpenses.reduce((sum, exp) => sum + exp.value, 0);
-  const cardExpenses = filteredExpenses
-    .filter((exp) => exp.paymentMethod === 'card')
-    .reduce((sum, exp) => sum + exp.value, 0);
   const subscriptionsTotal = subscriptions
     .filter((s) => s.active)
     .reduce((sum, s) => sum + s.value, 0);
@@ -47,6 +53,10 @@ export default function FinanceDashboard() {
   const fixedExpensesTotal = fixedExpenses
     .filter((f) => f.active)
     .reduce((sum, f) => sum + f.value, 0);
+
+  // Calculate average monthly expense
+  const totalMonthlyExpense = totalExpenses + subscriptionsTotal + installmentsTotal + fixedExpensesTotal;
+  const averageMonthlyExpense = monthsInRange > 0 ? totalMonthlyExpense / monthsInRange : 0;
 
   const expensesByCategory = filteredExpenses.reduce((acc, exp) => {
     acc[exp.categoryId] = (acc[exp.categoryId] || 0) + exp.value;
@@ -60,15 +70,6 @@ export default function FinanceDashboard() {
     const endStr = `${months[endDate.getMonth()]} ${endDate.getFullYear()}`;
     return startStr === endStr ? startStr : `${startStr} a ${endStr}`;
   };
-
-  // Calculate number of months in range for chart
-  const monthsInRange = useMemo(() => {
-    const startYear = startDate.getFullYear();
-    const startMonth = startDate.getMonth();
-    const endYear = endDate.getFullYear();
-    const endMonth = endDate.getMonth();
-    return (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
-  }, [startDate, endDate]);
 
   return (
     <MainLayout>
@@ -98,10 +99,10 @@ export default function FinanceDashboard() {
             index={0}
           />
           <ExpenseCard
-            title="Cartão de Crédito"
-            value={cardExpenses}
-            subtitle="Compras no cartão"
-            icon="CreditCard"
+            title="Gasto Médio"
+            value={averageMonthlyExpense}
+            subtitle={`Média de ${monthsInRange} ${monthsInRange === 1 ? 'mês' : 'meses'}`}
+            icon="TrendingUp"
             color="hsl(262, 83%, 58%)"
             index={1}
           />
