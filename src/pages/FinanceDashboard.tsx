@@ -11,9 +11,13 @@ import { useExpenses } from '@/contexts/ExpenseContext';
 export default function FinanceDashboard() {
   const { expenses, subscriptions, installments, fixedExpenses, expenseCategories } = useExpenses();
   
-  // Default: last 6 months
+  // Data starts from October 2025
+  const MIN_DATE = new Date(2025, 9, 1); // October 2025
   const now = new Date();
-  const [startDate, setStartDate] = useState(new Date(now.getFullYear(), now.getMonth() - 5, 1));
+  const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const defaultStart = currentMonth < MIN_DATE ? MIN_DATE : currentMonth;
+  
+  const [startDate, setStartDate] = useState(defaultStart);
   const [endDate, setEndDate] = useState(new Date(now.getFullYear(), now.getMonth() + 1, 0));
 
   const handleRangeChange = (start: Date, end: Date) => {
@@ -79,7 +83,8 @@ export default function FinanceDashboard() {
           <DateRangeFilter 
             startDate={startDate}
             endDate={endDate}
-            onRangeChange={handleRangeChange} 
+            onRangeChange={handleRangeChange}
+            minDate={MIN_DATE}
           />
         </div>
 
