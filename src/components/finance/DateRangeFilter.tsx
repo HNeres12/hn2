@@ -19,6 +19,7 @@ interface DateRangeFilterProps {
   startDate: Date;
   endDate: Date;
   onRangeChange: (start: Date, end: Date) => void;
+  minDate?: Date;
 }
 
 const months = [
@@ -27,18 +28,30 @@ const months = [
 ];
 
 const currentYear = new Date().getFullYear();
-const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
-export function DateRangeFilter({ startDate, endDate, onRangeChange }: DateRangeFilterProps) {
+export function DateRangeFilter({ startDate, endDate, onRangeChange, minDate }: DateRangeFilterProps) {
+  const minYear = minDate ? minDate.getFullYear() : currentYear - 2;
+  const years = Array.from({ length: currentYear - minYear + 3 }, (_, i) => minYear + i);
   const [isOpen, setIsOpen] = useState(false);
   const [tempStart, setTempStart] = useState({ month: startDate.getMonth(), year: startDate.getFullYear() });
   const [tempEnd, setTempEnd] = useState({ month: endDate.getMonth(), year: endDate.getFullYear() });
 
   const handleApply = () => {
-    const newStart = new Date(tempStart.year, tempStart.month, 1);
+    // Ensure selected date is not before minDate
+    let finalStart = new Date(tempStart.year, tempStart.month, 1);
+    if (minDate && finalStart < minDate) {
+      finalStart = minDate;
+    }
     const newEnd = new Date(tempEnd.year, tempEnd.month + 1, 0); // Last day of month
-    onRangeChange(newStart, newEnd);
+    onRangeChange(finalStart, newEnd);
     setIsOpen(false);
+  };
+
+  // Check if a month/year combination is disabled
+  const isMonthDisabled = (month: number, year: number) => {
+    if (!minDate) return false;
+    const date = new Date(year, month, 1);
+    return date < minDate;
   };
 
   const formatRange = () => {
@@ -72,7 +85,11 @@ export function DateRangeFilter({ startDate, endDate, onRangeChange }: DateRange
                 </SelectTrigger>
                 <SelectContent>
                   {months.map((month, idx) => (
-                    <SelectItem key={idx} value={idx.toString()}>
+                    <SelectItem 
+                      key={idx} 
+                      value={idx.toString()}
+                      disabled={isMonthDisabled(idx, tempStart.year)}
+                    >
                       {month}
                     </SelectItem>
                   ))}
