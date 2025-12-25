@@ -43,20 +43,27 @@ export default function FinanceDashboard() {
   }, [startDate, endDate]);
 
   const totalExpenses = filteredExpenses.reduce((sum, exp) => sum + exp.value, 0);
-  const subscriptionsTotal = subscriptions
+  
+  // Monthly recurring values (these are per-month values)
+  const subscriptionsMonthly = subscriptions
     .filter((s) => s.active)
     .reduce((sum, s) => sum + s.value, 0);
-  const installmentsTotal = installments.reduce((sum, i) => {
+  const installmentsMonthly = installments.reduce((sum, i) => {
     const remaining = i.totalInstallments - i.paidInstallments;
     return remaining > 0 ? sum + i.installmentValue : sum;
   }, 0);
-  const fixedExpensesTotal = fixedExpenses
+  const fixedExpensesMonthly = fixedExpenses
     .filter((f) => f.active)
     .reduce((sum, f) => sum + f.value, 0);
 
-  // Calculate average monthly expense
-  const totalMonthlyExpense = totalExpenses + subscriptionsTotal + installmentsTotal + fixedExpensesTotal;
-  const averageMonthlyExpense = monthsInRange > 0 ? totalMonthlyExpense / monthsInRange : 0;
+  // Total recurring per month
+  const totalRecurringMonthly = subscriptionsMonthly + installmentsMonthly + fixedExpensesMonthly;
+  
+  // For total period: expenses are already filtered by period, recurring values need to be multiplied
+  const totalPeriod = totalExpenses + (totalRecurringMonthly * monthsInRange);
+  
+  // Average monthly expense
+  const averageMonthlyExpense = monthsInRange > 0 ? totalPeriod / monthsInRange : 0;
 
   const expensesByCategory = filteredExpenses.reduce((acc, exp) => {
     acc[exp.categoryId] = (acc[exp.categoryId] || 0) + exp.value;
@@ -92,7 +99,7 @@ export default function FinanceDashboard() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           <ExpenseCard
             title="Total do Período"
-            value={totalExpenses + subscriptionsTotal + installmentsTotal + fixedExpensesTotal}
+            value={totalPeriod}
             subtitle="Todas as despesas"
             icon="Wallet"
             color="hsl(174, 72%, 46%)"
@@ -108,7 +115,7 @@ export default function FinanceDashboard() {
           />
           <ExpenseCard
             title="Despesas Fixas"
-            value={fixedExpensesTotal}
+            value={fixedExpensesMonthly}
             subtitle={`${fixedExpenses.filter(f => f.active).length} contas fixas`}
             icon="Home"
             color="hsl(200, 72%, 46%)"
@@ -116,7 +123,7 @@ export default function FinanceDashboard() {
           />
           <ExpenseCard
             title="Assinaturas"
-            value={subscriptionsTotal}
+            value={subscriptionsMonthly}
             subtitle={`${subscriptions.filter(s => s.active).length} serviços ativos`}
             icon="Repeat"
             color="hsl(142, 72%, 46%)"
@@ -124,7 +131,7 @@ export default function FinanceDashboard() {
           />
           <ExpenseCard
             title="Parcelas"
-            value={installmentsTotal}
+            value={installmentsMonthly}
             subtitle="Compromisso mensal"
             icon="Calendar"
             color="hsl(38, 92%, 50%)"
