@@ -73,7 +73,7 @@ export default function ExpenseManagement() {
   // Form states
   const [expenseForm, setExpenseForm] = useState({
     categoryId: '', name: '', value: '', paymentMethod: 'card' as Expense['paymentMethod'],
-    month: currentMonth.toString(), year: currentYear.toString(), notes: '',
+    month: currentMonth.toString(), year: currentYear.toString(),
   });
 
   const [subscriptionForm, setSubscriptionForm] = useState({
@@ -90,7 +90,7 @@ export default function ExpenseManagement() {
   });
 
   const resetForms = () => {
-    setExpenseForm({ categoryId: '', name: '', value: '', paymentMethod: 'card', month: currentMonth.toString(), year: currentYear.toString(), notes: '' });
+    setExpenseForm({ categoryId: '', name: '', value: '', paymentMethod: 'card', month: currentMonth.toString(), year: currentYear.toString() });
     setSubscriptionForm({ name: '', value: '', billingDay: '1', categoryId: '', active: true });
     setInstallmentForm({ name: '', totalValue: '', totalInstallments: '', paidInstallments: '0', startDate: new Date().toISOString().split('T')[0], categoryId: '' });
     setFixedForm({ name: '', value: '', dueDay: '5', categoryId: '', active: true });
@@ -105,7 +105,7 @@ export default function ExpenseManagement() {
       if (type === 'expense') {
         setExpenseForm({
           categoryId: item.categoryId, name: item.name, value: item.value.toString(),
-          paymentMethod: item.paymentMethod, month: item.month.toString(), year: item.year.toString(), notes: item.notes || '',
+          paymentMethod: item.paymentMethod, month: item.month.toString(), year: item.year.toString(),
         });
       } else if (type === 'subscription') {
         setSubscriptionForm({
@@ -138,8 +138,7 @@ export default function ExpenseManagement() {
         value: parseFloat(expenseForm.value),
         paymentMethod: expenseForm.paymentMethod, 
         month: parseInt(expenseForm.month), 
-        year: parseInt(expenseForm.year), 
-        notes: expenseForm.notes || undefined,
+        year: parseInt(expenseForm.year),
       };
       if (editingItem) {
         await updateExpense(editingItem.id, expenseData);
@@ -304,7 +303,7 @@ export default function ExpenseManagement() {
                         }}
                       />
                     </TableHead>
-                    <TableHead>Descrição</TableHead>
+                    <TableHead>Nome</TableHead>
                     <TableHead>Categoria</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
                     <TableHead>Pagamento</TableHead>
@@ -499,7 +498,7 @@ export default function ExpenseManagement() {
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label>Descrição *</Label>
+                <Label>Nome *</Label>
                 <Input value={expenseForm.name} onChange={(e) => setExpenseForm({ ...expenseForm, name: e.target.value })} placeholder="Ex: Supermercado" />
               </div>
               <div className="grid grid-cols-2 gap-4">
