@@ -72,7 +72,7 @@ export default function ExpenseManagement() {
 
   // Form states
   const [expenseForm, setExpenseForm] = useState({
-    categoryId: '', name: '', value: '', paymentMethod: 'card' as Expense['paymentMethod'],
+    categoryId: '', value: '', paymentMethod: 'card' as Expense['paymentMethod'],
     month: currentMonth.toString(), year: currentYear.toString(),
   });
 
@@ -90,7 +90,7 @@ export default function ExpenseManagement() {
   });
 
   const resetForms = () => {
-    setExpenseForm({ categoryId: '', name: '', value: '', paymentMethod: 'card', month: currentMonth.toString(), year: currentYear.toString() });
+    setExpenseForm({ categoryId: '', value: '', paymentMethod: 'card', month: currentMonth.toString(), year: currentYear.toString() });
     setSubscriptionForm({ name: '', value: '', billingDay: '1', categoryId: '', active: true });
     setInstallmentForm({ name: '', totalValue: '', totalInstallments: '', paidInstallments: '0', startDate: new Date().toISOString().split('T')[0], categoryId: '' });
     setFixedForm({ name: '', value: '', dueDay: '5', categoryId: '', active: true });
@@ -104,7 +104,7 @@ export default function ExpenseManagement() {
       setEditingItem(item);
       if (type === 'expense') {
         setExpenseForm({
-          categoryId: item.categoryId, name: item.name, value: item.value.toString(),
+          categoryId: item.categoryId, value: item.value.toString(),
           paymentMethod: item.paymentMethod, month: item.month.toString(), year: item.year.toString(),
         });
       } else if (type === 'subscription') {
@@ -127,14 +127,15 @@ export default function ExpenseManagement() {
   };
 
   const handleSaveExpense = async () => {
-    if (!expenseForm.categoryId || !expenseForm.name || !expenseForm.value) {
+    if (!expenseForm.categoryId || !expenseForm.value) {
       toast({ title: 'Erro', description: 'Preencha todos os campos obrigatórios', variant: 'destructive' });
       return;
     }
     try {
+      const category = getCategory(expenseForm.categoryId);
       const expenseData = {
         categoryId: expenseForm.categoryId, 
-        name: expenseForm.name, 
+        name: category?.name || 'Despesa',
         value: parseFloat(expenseForm.value),
         paymentMethod: expenseForm.paymentMethod, 
         month: parseInt(expenseForm.month), 
@@ -303,7 +304,6 @@ export default function ExpenseManagement() {
                         }}
                       />
                     </TableHead>
-                    <TableHead>Nome</TableHead>
                     <TableHead>Categoria</TableHead>
                     <TableHead className="text-right">Valor</TableHead>
                     <TableHead>Pagamento</TableHead>
@@ -332,13 +332,12 @@ export default function ExpenseManagement() {
                             }}
                           />
                         </TableCell>
-                        <TableCell className="font-medium">{expense.name}</TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 rounded flex items-center justify-center" style={{ backgroundColor: `${category?.color}20` }}>
                               <IconComponent className="w-3 h-3" style={{ color: category?.color }} />
                             </div>
-                            <span className="text-muted-foreground">{category?.name}</span>
+                            <span className="font-medium">{category?.name}</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-right font-mono">R$ {expense.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</TableCell>
@@ -497,10 +496,6 @@ export default function ExpenseManagement() {
               <DialogDescription>Preencha os dados da despesa</DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label>Nome *</Label>
-                <Input value={expenseForm.name} onChange={(e) => setExpenseForm({ ...expenseForm, name: e.target.value })} placeholder="Ex: Supermercado" />
-              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label>Categoria *</Label>
