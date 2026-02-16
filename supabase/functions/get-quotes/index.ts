@@ -28,6 +28,8 @@ async function getCryptoQuote(ticker: string): Promise<QuoteResponse> {
     'XRP': 'ripple',
     'ADA': 'cardano',
     'DOGE': 'dogecoin',
+    'USDT': 'tether',
+    'USDC': 'usd-coin',
   };
 
   // Fallback prices for when API is rate limited (approximate BRL values)
@@ -39,6 +41,8 @@ async function getCryptoQuote(ticker: string): Promise<QuoteResponse> {
     'XRP': 13,
     'ADA': 5.5,
     'DOGE': 2.0,
+    'USDT': 5.7,
+    'USDC': 5.7,
   };
 
   const coinId = coinGeckoIds[ticker.toUpperCase()] || ticker.toLowerCase();
