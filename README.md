@@ -1,73 +1,81 @@
-# Welcome to your Lovable project
-
-## Project info
-
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
+# FinanceHub
+ 
+Aplicativo de gestão financeira pessoal: controle de patrimônio, investimentos (com tipos de ativos, moedas BRL/USD e entidades PF/PJ/holding/offshore), despesas, assinaturas, contas fixas e parcelados.
+ 
+## Stack
+ 
+- **Frontend:** Vite + React + TypeScript
+- **UI:** Tailwind CSS + shadcn/ui
+- **Backend:** Supabase (PostgreSQL + Auth)
+- **PWA:** Vite Plugin PWA (instalável no celular)
+- **Estado/Dados:** React Context API, React Query
+## Rodando localmente
+ 
+### Pré-requisitos
+ 
+- [Node.js](https://nodejs.org/) 18 ou superior
+- npm
+### Passo a passo
+ 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# 1. Clonar
+git clone https://github.com/HNeres12/hn2.git
+cd hn2
+ 
+# 2. Instalar dependências
+npm install
+ 
+# 3. Configurar variáveis de ambiente
+cp .env.example .env
+# Edite o .env com as credenciais do seu Supabase
+ 
+# 4. Rodar
 npm run dev
 ```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+ 
+App em `http://localhost:8080`.
+ 
+## Variáveis de ambiente
+ 
+```
+VITE_SUPABASE_URL=https://seu-projeto.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sua-chave-publishable
+```
+ 
+Encontre esses valores no painel do Supabase em **Project Settings → API**.
+ 
+## Scripts
+ 
+- `npm run dev` — desenvolvimento (hot reload)
+- `npm run build` — build de produção
+- `npm run preview` — preview do build
+- `npm run lint` — linter
+## Estrutura
+ 
+```
+src/
+  components/      Componentes da aplicação
+  contexts/        Context API (Auth, Expense, Investment, AssetType)
+  hooks/           Hooks customizados (useQuotes para cotações)
+  integrations/    Cliente do Supabase
+  pages/           Páginas (Auth, Dashboards, Management, Settings)
+  types/           Tipos TypeScript
+supabase/
+  migrations/      Migrations SQL
+```
+ 
+## Tabelas do banco
+ 
+- `asset_types` — Tipos de ativos
+- `investments` — Investimentos
+- `expense_categories` — Categorias de despesas
+- `expenses` — Despesas pontuais
+- `subscriptions` — Assinaturas
+- `fixed_expenses` — Despesas fixas
+- `installment_purchases` — Compras parceladas
+Todas têm Row Level Security (RLS) ativado.
+ 
+## Deploy
+ 
+Compatível com Vercel, Netlify, Cloudflare Pages. Configure as variáveis de ambiente no painel do serviço.
+ 
