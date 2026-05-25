@@ -6,12 +6,20 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
+ 
 node_modules
 dist
 dist-ssr
 *.local
-
+ 
+# Variáveis de ambiente (NUNCA comitar)
+.env
+.env.local
+.env.*.local
+ 
+# Backups (NUNCA comitar - dados sensíveis)
+backup-*.json
+ 
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
